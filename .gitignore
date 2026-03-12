@@ -33,3 +33,6 @@ Thumbs.db
 
 # Godot editor backups
 *~
+
+# .env
+.env
