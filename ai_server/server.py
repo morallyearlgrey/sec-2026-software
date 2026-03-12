@@ -10,11 +10,15 @@ AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
 SESSION_DB_URL = f"sqlite:///{os.path.join(AGENT_DIR, 'sessions.db')}"
 
 app: FastAPI = get_fast_api_app(
-    agent_dir=AGENT_DIR,
-    session_db_url=SESSION_DB_URL,
+    agents_dir=AGENT_DIR,
+    session_service_uri=SESSION_DB_URL, 
     allow_origins=["*"],
     web=True,
 )
+
+@app.get("/ping")
+async def root():
+    return {"message": "yay :D"}
 
 @app.get("/health")
 async def health():
@@ -31,4 +35,4 @@ async def list_agents():
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
