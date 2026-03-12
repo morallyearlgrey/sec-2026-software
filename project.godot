@@ -27,7 +27,7 @@ directories/dch_directory={
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
-"alien_1": "res://alien_1.dtl"
+"alien_2": "res://Timelines/alien_1.dtl"
 }
 layout/style_directory={
 "": "res://Assets/Backgrounds/Alien1_Textbox.tres",
