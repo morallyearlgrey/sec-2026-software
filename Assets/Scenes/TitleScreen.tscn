@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://cqo0lrb7a15pr"]
+
+[ext_resource type="Script" uid="uid://f5ij3k3c3jx2" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
+[ext_resource type="Texture2D" uid="uid://dqpjpnf1gpi0e" path="res://Assets/Backgrounds/TitleScreen.jpg" id="2_vu4bj"]
+
+[sub_resource type="AnimatedTexture" id="AnimatedTexture_7huei"]
+
+[node name="TitleScreen" type="Control" unique_id=346713926]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_7huei")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1779973118]
+layout_mode = 0
+offset_right = 1156.0
+offset_bottom = 628.0
+texture = ExtResource("2_vu4bj")
+expand_mode = 5
+stretch_mode = 5
+
+[node name="StartButton" type="Button" parent="." unique_id=962919819]
+layout_mode = 0
+offset_left = 415.0
+offset_top = 460.0
+offset_right = 667.0
+offset_bottom = 553.0
+text = "Start"
+icon = SubResource("AnimatedTexture_7huei")
+
+[connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]

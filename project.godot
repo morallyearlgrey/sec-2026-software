@@ -11,8 +11,9 @@ config_version=5
 [application]
 
 config/name="sec-2026-software"
+run/main_scene="uid://cqo0lrb7a15pr"
 config/features=PackedStringArray("4.6", "Mobile")
-config/icon="res://icon.svg"
+config/icon="res://Assets/Characters/icon.svg"
 
 [editor]
 

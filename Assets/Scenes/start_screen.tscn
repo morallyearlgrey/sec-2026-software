@@ -1,4 +1,0 @@
-[gd_scene format=3 uid="uid://b3cslavn1qitj"]
-
-[node name="StartScreen" type="Node2D" unique_id=2117512036]
-position = Vector2(1, 0)
