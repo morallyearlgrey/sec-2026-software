@@ -25,8 +25,8 @@ async def list_agents():
     """Confirms which agents are available."""
     return {
         "agents": [
-            "alien_agent",
-            "qa_agent",
+            "alien",
+            "qa",
         ]
     }
 
