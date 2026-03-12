@@ -39,3 +39,6 @@ Thumbs.db
 
 # sessions db
 .sessions.db
+
+# AI server sessions database
+ai_server/sessions.db
