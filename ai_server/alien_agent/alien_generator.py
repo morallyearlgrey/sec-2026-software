@@ -11,17 +11,18 @@ class AlienGenerator:
         mbti = self.get_random_mbti()
         situation = self.get_random_market_booth()
         greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
+        liked_words = self.get_random_likes()
+        banned_words = self.get_random_dislikes(liked_words)
         
         return f"You name is {name}. You are an alien. Your mood is {mood} and \
 you're an {mbti}. You work as a {situation[0]}, and you are situated in a \
-booth at a market where you are selling {situation[1]}. You enjoy {likes[0]}, \
-{likes[1]}, and {likes[2]}. You hate {dislikes[0]}, {dislikes[1]}, and \
-{dislikes[2]}. You have a maximum dialog of 5 responses before you want to end \
-the conversation. Your greeting is \"{greeting}\". I am looking to invite you \
-to the grand opening for my restaurant, but you don't know that yet. All you \
-know is that I approached your booth."
+booth at a market where you are selling {situation[1]}. You enjoy \
+{liked_words[0]}, {liked_words[1]}, and {liked_words[2]}. You hate \
+{banned_words[0]}, {banned_words[1]}, and {banned_words[2]}. You have a \
+maximum dialog of 5 responses before you want to end the conversation. Your \
+greeting is \"{greeting}\". I am looking to invite you to the grand opening \
+for my restaurant, but you don't know that yet. All you know is that I \
+approached your booth."
 
     def get_dict(self):
         name = self.get_random_name()
@@ -29,8 +30,8 @@ know is that I approached your booth."
         mbti = self.get_random_mbti()
         situation = self.get_random_market_booth()
         greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
+        liked_words = self.get_random_likes()
+        banned_words = self.get_random_dislikes(liked_words)
         
         return {
             name,
@@ -38,8 +39,8 @@ know is that I approached your booth."
             mbti,
             situation,
             greeting,
-            likes,
-            dislikes
+            liked_words,
+            banned_words
         }
 
     def get_random_name(self):
