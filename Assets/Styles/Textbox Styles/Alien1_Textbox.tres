@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DialogicStyle" format=3 uid="uid://d1ath6u2do5on"]
+[gd_resource type="Resource" script_class="DialogicStyle" format=4 uid="uid://ciy4etjfij17f"]
 
 [ext_resource type="PackedScene" uid="uid://cqpb3ie51rwl5" path="res://addons/dialogic/Modules/DefaultLayoutParts/Base_Default/default_layout_base.tscn" id="1_ei7u0"]
 [ext_resource type="Script" uid="uid://bwg6yncmh2cml" path="res://addons/dialogic/Resources/dialogic_style_layer.gd" id="2_dw4ip"]
@@ -47,7 +47,218 @@ overrides = {
 "text_use_global_size": "false"
 }
 
+[sub_resource type="GDScript" id="GDScript_vqyb7"]
+script/source = "@tool
+extends DialogicLayoutLayer
+
+## Layer that provides a popup with glossary info,
+## when hovering a glossary entry on a text node.
+
+
+@export_group('Text')
+enum Alignment {LEFT, CENTER, RIGHT}
+@export var title_alignment: Alignment = Alignment.LEFT
+@export var text_alignment: Alignment = Alignment.LEFT
+@export var extra_alignment: Alignment = Alignment.RIGHT
+
+@export_subgroup(\"Colors\")
+enum TextColorModes {GLOBAL, ENTRY, CUSTOM}
+@export var title_color_mode: TextColorModes = TextColorModes.ENTRY
+@export var title_custom_color: Color = Color.WHITE
+@export var text_color_mode: TextColorModes = TextColorModes.ENTRY
+@export var text_custom_color: Color = Color.WHITE
+@export var extra_color_mode: TextColorModes = TextColorModes.ENTRY
+@export var extra_custom_color: Color = Color.WHITE
+
+
+@export_group(\"Font\")
+@export var font_use_global: bool = true
+@export_file('*.ttf', '*.tres') var font_custom: String = \"\"
+
+@export_subgroup('Sizes')
+@export var font_title_size: int = 18
+@export var font_text_size: int = 17
+@export var font_extra_size: int = 15
+
+
+@export_group(\"Box\")
+@export_subgroup(\"Color\")
+enum ModulateModes {BASE_COLOR_ONLY, ENTRY_COLOR_ON_BOX, GLOBAL_BG_COLOR}
+@export var box_modulate_mode: ModulateModes = ModulateModes.ENTRY_COLOR_ON_BOX
+@export var box_base_modulate: Color = Color.WHITE
+@export_subgroup(\"Size\")
+@export var box_width: int = 200
+
+const MISSING_INDEX := -1
+func get_pointer() -> Control:
+	return $Pointer
+
+
+func get_title() -> Label:
+	return %Title
+
+
+func get_text() -> RichTextLabel:
+	return %Text
+
+
+func get_extra() -> RichTextLabel:
+	return %Extra
+
+
+func get_panel() -> PanelContainer:
+	return %Panel
+
+
+func get_panel_point() -> PanelContainer:
+	return %PanelPoint
+
+
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+
+	get_pointer().hide()
+	var text_system: Node = DialogicUtil.autoload().get(&'Text')
+	var _error: int = 0
+	_error = text_system.connect(&'animation_textbox_hide', get_pointer().hide)
+	_error = text_system.connect(&'meta_hover_started', _on_dialogic_display_dialog_text_meta_hover_started)
+	_error = text_system.connect(&'meta_hover_ended', _on_dialogic_display_dialog_text_meta_hover_ended)
+
+
+## Method that shows the bubble and fills in the info
+func _on_dialogic_display_dialog_text_meta_hover_started(meta: String) -> void:
+	var entry_info := DialogicUtil.autoload().Glossary.get_entry(meta)
+
+	if entry_info.is_empty():
+		return
+
+	get_pointer().show()
+	get_title().text = entry_info.title
+	get_text().text = entry_info.text
+	get_text().text = ['', '[center]', '[right]'][text_alignment] + get_text().text
+	get_extra().text = entry_info.extra
+	get_extra().text = ['', '[center]', '[right]'][extra_alignment] + get_extra().text
+	get_pointer().global_position = get_pointer().get_global_mouse_position()
+
+	if title_color_mode == TextColorModes.ENTRY:
+		get_title().add_theme_color_override(&\"font_color\", entry_info.color)
+	if text_color_mode == TextColorModes.ENTRY:
+		get_text().add_theme_color_override(&\"default_color\", entry_info.color)
+	if extra_color_mode == TextColorModes.ENTRY:
+		get_extra().add_theme_color_override(&\"default_color\", entry_info.color)
+
+	match box_modulate_mode:
+		ModulateModes.ENTRY_COLOR_ON_BOX:
+			get_panel().self_modulate = entry_info.color
+			get_panel_point().self_modulate = entry_info.color
+
+
+## Method that keeps the bubble at mouse position when visible
+func _process(_delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
+	var pointer: Control = get_pointer()
+	if pointer.visible:
+		pointer.global_position = pointer.get_global_mouse_position()
+
+
+## Method that hides the bubble
+func _on_dialogic_display_dialog_text_meta_hover_ended(_meta:String) -> void:
+	get_pointer().hide()
+
+
+
+func _apply_export_overrides() -> void:
+	# Apply fonts
+	var font: Font
+	var global_font_setting: String = get_global_setting(&\"font\", '')
+	if font_use_global and ResourceLoader.exists(global_font_setting):
+		font = load(global_font_setting)
+	elif ResourceLoader.exists(font_custom):
+		font = load(font_custom)
+
+	var title: Label = get_title()
+	if font:
+		title.add_theme_font_override(&\"font\", font)
+	title.horizontal_alignment = title_alignment as HorizontalAlignment
+
+	# Apply font & sizes
+	title.add_theme_font_size_override(&\"font_size\", font_title_size)
+	var labels: Array[RichTextLabel] = [get_text(), get_extra()]
+	var sizes: PackedInt32Array = [font_text_size, font_extra_size]
+	for i : int in len(labels):
+		if font:
+			labels[i].add_theme_font_override(&'normal_font', font)
+
+		labels[i].add_theme_font_size_override(&\"normal_font_size\", sizes[i])
+		labels[i].add_theme_font_size_override(&\"bold_font_size\", sizes[i])
+		labels[i].add_theme_font_size_override(&\"italics_font_size\", sizes[i])
+		labels[i].add_theme_font_size_override(&\"bold_italics_font_size\", sizes[i])
+		labels[i].add_theme_font_size_override(&\"mono_font_size\", sizes[i])
+
+
+	# Apply text colors
+	# this applies Global or Custom colors, entry colors are applied on hover
+	var controls: Array[Control] = [get_title(), get_text(), get_extra()]
+	var settings: Array[StringName] = [&'font_color', &'default_color', &'default_color']
+	var color_modes: Array[TextColorModes] = [title_color_mode, text_color_mode, extra_color_mode]
+	var custom_colors: PackedColorArray = [title_custom_color, text_custom_color, extra_custom_color]
+	for i : int in len(controls):
+		match color_modes[i]:
+			TextColorModes.GLOBAL:
+				controls[i].add_theme_color_override(settings[i], get_global_setting(&'font_color', custom_colors[i]) as Color)
+			TextColorModes.CUSTOM:
+				controls[i].add_theme_color_override(settings[i], custom_colors[i])
+
+	# Apply box size
+	var panel: PanelContainer = get_panel()
+	panel.size.x = box_width
+	panel.position.x = -box_width/2.0
+
+	# Apply box coloring
+	match box_modulate_mode:
+		ModulateModes.BASE_COLOR_ONLY:
+			panel.self_modulate = box_base_modulate
+			get_panel_point().self_modulate = box_base_modulate
+		ModulateModes.GLOBAL_BG_COLOR:
+			panel.self_modulate = get_global_setting(&'bg_color', box_base_modulate)
+			get_panel_point().self_modulate = get_global_setting(&'bg_color', box_base_modulate)
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a3cyk"]
+bg_color = Color(0.12549, 0.12549, 0.12549, 1)
+border_width_left = 2
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 2
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+expand_margin_left = 5.0
+expand_margin_top = 5.0
+expand_margin_right = 5.0
+expand_margin_bottom = 5.0
+
+[sub_resource type="PackedScene" id="PackedScene_7xi3r"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("Glossary", "Control", "layout_mode", "anchors_preset", "mouse_filter", "script", "Pointer", "Control", "anchors_preset", "Panel", "PanelContainer", "unique_name_in_owner", "layout_mode", "anchors_preset", "anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "grow_vertical", "theme_override_styles/panel", "metadata/_edit_use_custom_anchors", "metadata/_edit_layout_mode", "VBox", "VBoxContainer", "layout_mode", "theme_override_constants/separation", "Title", "Label", "unique_name_in_owner", "layout_mode", "HSeparator", "HSeparator", "layout_mode", "Text", "RichTextLabel", "unique_name_in_owner", "layout_mode", "bbcode_enabled", "fit_content", "Extra", "RichTextLabel", "unique_name_in_owner", "layout_mode", "theme_override_font_sizes/normal_font_size", "bbcode_enabled", "fit_content", "Control", "Control", "show_behind_parent", "layout_mode", "size_flags_horizontal", "size_flags_vertical", "PanelPoint", "PanelContainer", "unique_name_in_owner", "layout_mode", "offset_left", "offset_top", "offset_right", "offset_bottom", "rotation", "size_flags_horizontal", "size_flags_vertical", "theme_override_styles/panel"),
+"node_count": 10,
+"node_ids": PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+"node_paths": [NodePath("."), NodePath("./Pointer"), NodePath("./Pointer/Panel"), NodePath("./Pointer/Panel/VBox"), NodePath("./Pointer/Panel/VBox"), NodePath("./Pointer/Panel/VBox"), NodePath("./Pointer/Panel/VBox"), NodePath("./Pointer/Panel"), NodePath("./Pointer/Panel/Control")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 4, 2, 0, 3, 1, 4, 2, 5, 3, 0, 1073741824, 0, 7, 6, -1, 1, 8, 4, 0, 1073741825, 0, 10, 9, -1, 16, 11, 5, 12, 6, 13, 7, 14, 8, 15, 9, 16, 10, 17, 11, 18, 12, 19, 13, 20, 14, 21, 15, 22, 16, 23, 17, 24, 18, 25, 19, 26, 20, 0, 1073741826, 0, 28, 27, -1, 2, 29, 21, 30, 22, 0, 1073741827, 0, 32, 31, -1, 2, 33, 23, 34, 24, 0, 1073741828, 0, 36, 35, -1, 1, 37, 25, 0, 1073741829, 0, 39, 38, -1, 4, 40, 26, 41, 27, 42, 28, 43, 29, 0, 1073741830, 0, 45, 44, -1, 5, 46, 30, 47, 31, 48, 32, 49, 33, 50, 34, 0, 1073741831, 0, 52, 51, -1, 4, 53, 35, 54, 36, 55, 37, 56, 38, 0, 1073741832, 0, 58, 57, -1, 10, 59, 39, 60, 40, 61, 41, 62, 42, 63, 43, 64, 44, 65, 45, 66, 46, 67, 47, 68, 48, 0),
+"variants": [3, 0, 2, SubResource("GDScript_vqyb7"), 0, true, 1, 7, 0.5, 1.0, 0.5, 1.0, -81.0, -113.0, 86.0, -35.0, 2, 0, SubResource("StyleBoxFlat_a3cyk"), true, 1, 2, 0, true, 2, 2, true, 2, true, true, true, 2, 15, true, true, true, 2, 4, 8, true, 0, -0.999999, -14.0, 19.0, 6.0, 0.75799, 4, 8, SubResource("StyleBoxFlat_a3cyk")],
+"version": 3
+}
+
 [sub_resource type="Resource" id="Resource_mi18t"]
+<<<<<<< HEAD:Assets/Styles/Textbox Styles/Alien1_Textbox.tres
 script = ExtResource("2_dw4ip")
 scene = ExtResource("7_64jem")
 
@@ -65,6 +276,900 @@ scene = ExtResource("10_ca7m0")
 
 [resource]
 script = ExtResource("11_x1yqn")
+=======
+script = SubResource("GDScript_ejk17")
+scene = SubResource("PackedScene_7xi3r")
+
+[sub_resource type="GDScript" id="GDScript_icl5g"]
+script/source = "@tool
+extends DialogicLayoutLayer
+
+## A layer that allows showing up to 10 choices.
+## Choices are positioned in the center of the screen.
+
+@export_group(\"Text\")
+@export_subgroup('Font')
+@export var font_use_global: bool = true
+@export_file('*.ttf', '*.tres') var font_custom: String = \"\"
+@export_subgroup('Size')
+@export var font_size_use_global: bool = true
+@export var font_size_custom: int = 16
+@export_subgroup('Color')
+@export var text_color_use_global: bool = true
+@export var text_color_custom: Color = Color.WHITE
+@export var text_color_pressed: Color = Color.WHITE
+@export var text_color_hovered: Color = Color.GRAY
+@export var text_color_disabled: Color = Color.DARK_GRAY
+@export var text_color_focused: Color = Color.WHITE
+
+@export_group('Boxes')
+@export_subgroup('Panels')
+@export_file('*.tres') var boxes_stylebox_normal: String = \"res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_normal.tres\"
+@export_file('*.tres') var boxes_stylebox_hovered: String = \"res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_hover.tres\"
+@export_file('*.tres') var boxes_stylebox_pressed: String = \"\"
+@export_file('*.tres') var boxes_stylebox_disabled: String = \"\"
+@export_file('*.tres') var boxes_stylebox_focused: String = \"res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_focus.tres\"
+@export_subgroup('Modulate')
+@export_subgroup('Size & Position')
+@export var boxes_v_separation: int = 10
+@export var boxes_fill_width: bool = true
+@export var boxes_min_size: Vector2 = Vector2()
+@export var boxes_offset: Vector2 = Vector2()
+
+@export_group('Sounds')
+@export_range(-80, 24, 0.01) var sounds_volume: float = -10
+@export_file(\"*.wav\", \"*.ogg\", \"*.mp3\") var sounds_pressed: String = \"res://addons/dialogic/Example Assets/sound-effects/typing1.wav\"
+@export_file(\"*.wav\", \"*.ogg\", \"*.mp3\") var sounds_hover: String = \"res://addons/dialogic/Example Assets/sound-effects/typing2.wav\"
+@export_file(\"*.wav\", \"*.ogg\", \"*.mp3\") var sounds_focus: String = \"res://addons/dialogic/Example Assets/sound-effects/typing4.wav\"
+
+@export_group('Choices')
+@export_subgroup('Behavior')
+@export var maximum_choices: int = 10
+@export_file('*.tscn') var choices_custom_button: String = \"\"
+
+func get_choices() -> VBoxContainer:
+	return $Choices
+
+
+func get_button_sound() -> DialogicNode_ButtonSound:
+	return %DialogicNode_ButtonSound
+
+
+## Method that applies all exported settings
+func _apply_export_overrides() -> void:
+	# apply text settings
+	var layer_theme: Theme = Theme.new()
+
+	# font
+	if font_use_global and get_global_setting(&'font', false):
+		layer_theme.set_font(&'font', &'Button', load(get_global_setting(&'font', '') as String) as Font)
+	elif ResourceLoader.exists(font_custom):
+		layer_theme.set_font(&'font', &'Button', load(font_custom) as Font)
+
+	# font size
+	if font_size_use_global:
+		layer_theme.set_font_size(&'font_size', &'Button', get_global_setting(&'font_size', font_size_custom) as int)
+	else:
+		layer_theme.set_font_size(&'font_size', &'Button', font_size_custom)
+
+	# font color
+	if text_color_use_global:
+		layer_theme.set_color(&'font_color', &'Button', get_global_setting(&'font_color', text_color_custom) as Color)
+	else:
+		layer_theme.set_color(&'font_color', &'Button', text_color_custom)
+
+	layer_theme.set_color(&'font_pressed_color', &'Button', text_color_pressed)
+	layer_theme.set_color(&'font_hover_color', &'Button', text_color_hovered)
+	layer_theme.set_color(&'font_disabled_color', &'Button', text_color_disabled)
+	layer_theme.set_color(&'font_pressed_color', &'Button', text_color_pressed)
+	layer_theme.set_color(&'font_focus_color', &'Button', text_color_focused)
+
+
+	# apply box settings
+	if ResourceLoader.exists(boxes_stylebox_normal):
+		var style_box: StyleBox = load(boxes_stylebox_normal)
+		layer_theme.set_stylebox(&'normal', &'Button', style_box)
+		layer_theme.set_stylebox(&'hover', &'Button', style_box)
+		layer_theme.set_stylebox(&'pressed', &'Button', style_box)
+		layer_theme.set_stylebox(&'disabled', &'Button', style_box)
+		layer_theme.set_stylebox(&'focus', &'Button', style_box)
+
+	if ResourceLoader.exists(boxes_stylebox_hovered):
+		layer_theme.set_stylebox(&'hover', &'Button', load(boxes_stylebox_hovered) as StyleBox)
+
+	if ResourceLoader.exists(boxes_stylebox_pressed):
+		layer_theme.set_stylebox(&'pressed', &'Button', load(boxes_stylebox_pressed) as StyleBox)
+	if ResourceLoader.exists(boxes_stylebox_disabled):
+		layer_theme.set_stylebox(&'disabled', &'Button', load(boxes_stylebox_disabled) as StyleBox)
+	if ResourceLoader.exists(boxes_stylebox_focused):
+		layer_theme.set_stylebox(&'focus', &'Button', load(boxes_stylebox_focused) as StyleBox)
+
+	var choices : Control = get_choices()
+	choices.add_theme_constant_override(&\"separation\", boxes_v_separation)
+	self.position = boxes_offset
+
+	# replace choice buttons and apply settings
+	for child: Node in choices.get_children():
+		if child is DialogicNode_ChoiceButton:
+			child.queue_free()
+
+	var choices_button: PackedScene = null
+	if not choices_custom_button.is_empty():
+		if ResourceLoader.exists(choices_custom_button):
+			choices_button = (load(choices_custom_button) as PackedScene)
+		else:
+			printerr(\"[Dialogic] Unable to load custom choice button from \", choices_custom_button)
+
+	for i in range(0, maximum_choices):
+		var new_choice : DialogicNode_ChoiceButton
+		if choices_button != null:
+			new_choice = (choices_button.instantiate() as DialogicNode_ChoiceButton)
+		else:
+			new_choice = DialogicNode_ChoiceButton.new()
+		choices.add_child(new_choice)
+
+		if boxes_fill_width:
+			new_choice.size_flags_horizontal = Control.SIZE_FILL
+		else:
+			new_choice.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+
+		new_choice.custom_minimum_size = boxes_min_size
+
+
+	set(&'theme', layer_theme)
+
+	# apply sound settings
+	var button_sound: DialogicNode_ButtonSound = get_button_sound()
+	button_sound.volume_db = sounds_volume
+	button_sound.sound_pressed = load(sounds_pressed)
+	button_sound.sound_hover = load(sounds_hover)
+	button_sound.sound_focus = load(sounds_focus)
+"
+
+[sub_resource type="GDScript" id="GDScript_u7l8y"]
+script/source = "class_name DialogicNode_ButtonSound
+extends AudioStreamPlayer
+
+## Node that is used for playing sound effects on hover/focus/press of sibling DialogicNode_ChoiceButtons.
+
+## Sound to be played if one of the sibling ChoiceButtons is pressed.
+## If sibling ChoiceButton has a sound_pressed set, that is prioritized.
+@export var sound_pressed: AudioStream
+## Sound to be played on hover. See [sound_pressed] for more.
+@export var sound_hover: AudioStream
+## Sound to be played on focus. See [sound_pressed] for more.
+@export var sound_focus: AudioStream
+
+func _ready() -> void:
+	add_to_group('dialogic_button_sound')
+	_connect_all_buttons()
+
+#basic play sound
+func play_sound(sound) -> void:
+	if sound != null:
+		stream = sound
+		play()
+
+func _connect_all_buttons() -> void:
+	for child in get_parent().get_children():
+		if child is DialogicNode_ChoiceButton:
+			child.button_up.connect(_on_pressed.bind(child.sound_pressed))
+			child.mouse_entered.connect(_on_hover.bind(child.sound_hover))
+			child.focus_entered.connect(_on_focus.bind(child.sound_focus))
+
+
+#the custom_sound argument comes from the specifec button and get used
+#if none are found, it uses the above sounds
+
+func _on_pressed(custom_sound) -> void:
+	if custom_sound != null:
+		play_sound(custom_sound)
+	else:
+		play_sound(sound_pressed)
+
+func _on_hover(custom_sound) -> void:
+	if custom_sound != null:
+		play_sound(custom_sound)
+	else:
+		play_sound(sound_hover)
+
+func _on_focus(custom_sound) -> void:
+	if custom_sound != null:
+		play_sound(custom_sound)
+	else:
+		play_sound(sound_focus)
+
+"
+
+[sub_resource type="AudioStreamWAV" id="AudioStreamWAV_mi18t"]
+data = PackedByteArray("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AgogB7676wUMXvBd85d98wCYnxKuu8+BAgAogGWOXeEAHGi9858Xrg8DRC+e++cuD676xoOXfNMJ800HGlUAUQFzQ+TABAsBBOXXeEK75pUIbiCinLnPDAqDhAaQN11TBGfXWNXWD74A599d1dd9YQKIKcaX1xO8AOWNIvXffNALiHvrvA0xPgaDSu++YBRAAFEB75hNFXMExPvirCETLg+cqRue8DjRBOVAAifVAzwCmgHHLLmE0AMsae+b1guqBfXdAogp774B9859c009Rg8KaIB3nyYABNApogAONAwKgCiZYQU4fgAqV1QeqIe+CxoXOWWFWEEJd4QnGg8zLgYDjTQKIAcZCMT5oOXNOWMECJ9UvrvCCguFjQDjQDjlCEoz74r5y74GJ80QAUU58QVhAK+e8YAeD6wvfNNAXMILC9UvrmZ8SATjn13zRT3hA7y6xpoFEAMI00CiAHGE0Acu+u+aaAe+C76xz5ogAogAUxPmE0rmAAe+sIKcYV11CfFxgPWfNEABdd9ZY0U0vgIITljQKDjQBxpoFEAEJoUM99YGirmFcwTQeqIV11RCD4CxfOMAB74LvATPiGp4rAaXxVhTRAD3DMJoAopypXUILrqg40CirguqDjQKITjnDPeNBwXWOWEDPnGACiAA9w1jljQKIV11Ab74NFNEAFAHvA58Smk0AAcaBnzjAKYnDMAPfXfMAFEAA98wF8QU9QRABT313zCuAQCsRAnABAAAAAAC//4AAQO5/rXfbTi1D5gXENFNAhMEQHGAU0CiZQjlj3l1hKuuDwuML4vffNACiACE0HvmAAKIAe+u+u+YBXMK6xy7674GYzvvrvmmNwRRVzAD1RAVCEAFC5yy674GACimiACiAAKIC+cYAKe+C6oONApwgp4PmFcwrmAHCAcIKIADjQKIAAXOVK775gAHvrGhc545YwRVzCuu++cYAywlNBwfL74LC98wrrvGgwheqD333zAICeC67xoFEAEE98wAUQCrrg8aBRAKaBT1BEAFPfM7oFMECiF8CHvmFQzABRAAcaAuBogogAp76wgCiACg40ChdQ1ABnxe+YTQAogB6ogAoOMJd4GgLrvvvg+asuqBT331CVB7676wlNACnqiAU0CiAAKIVzABRV13DMK5gAogPfcM0098wAUQDA8DljQKF133DfWWWOWNAp4PrvvmARPrGgBRAXzjABRAAFEAFEAFEAEE98wALnKnCAKIAKIAF131CXfVL4gogAoCAHvmAHvmAAKe++YX11l3DXffMBwgp74LvvmA4QUQAQRABRAAe++aByxyxoFEAFEAAUQAHHLGgQQuaYAKIAM+C5nffF7oAz4GiCirmACiAQn3zTQKKuYVDMAET6xoBxwLGgUTvHGhdw31ABRAXzlTDfMK6wgogAoCAU0CnvmACgIAKIAKF11CC4/BgFEAFEAAUQAUQA99YQBT3zCuYVzAAFFXfWVL4gMI0HvrC9UCiABngaBT3zABBC5pgAoXNMAF85U9UQAUQABT3131hBT3DMAC5pgGffAPmiCnCBc0wguu+u+YAKIAAogGfVKxoFMN8wA99YQU4QBT1RAD311RAAPfMB76oFEArrCCiACiAAKIAKIAIngcCxoFEL5zxz4LvGgUQAUQAwhM++aaBRABBEAFC676xooLvvqgUQA99QhBRABRABT3DXVEAFPVEAEE99d9YwAUQgusYVzAXzn1CMAFEAFPfXcNdYwrrvrrLAIe+YAe+sYVDMAFBxoBxpcM0QUQAUVd9Q33xKIAeqIAAoXXUJoBwgoCrrGACiACigaIAeqKuu+uBgAONL4lNAoCrrGAZ98Kgw1QcaBRABRAAET5oXEq5gACiACiFcwrrAu+YAKIAKIAAoONBwvfVBwBcwrrLvvmAw3zAD1RAAcaAFEK5gAogAoCF80PiA4XvgsqIAITljQeCogL4gohfEoPg00CiABcSguu+sJTljQKAhXMK5gAogACN98CQrvrvAan1zC+aLzRAoPfMAC67xgE0rrGABc59Q1ThAuJV1jAApyxoPfXeBoAUQAUQA99ZQljABRC+u6AC5pgAog7xqcN890AU94QAA==")
+format = 3
+
+[sub_resource type="AudioStreamWAV" id="AudioStreamWAV_kw3te"]
+data = PackedByteArray("cW9hZgAALaABAKxEFAAIGAAAAAAAAAAAAAAAAOAAQAAfgAU2CSigQRAXLQSjFvk2IikgEIAtuIoWSz2Ypr/ouCAVJCjdsyJpJyE0iHlYtpIqgn+NCiSEWyITZiFATSFbJpEJJp2iEmAYX/cm3NqRLCLbkBYADBJKIgUpEmNtBhAgSYww4VQgKSEJZCIJKKZCOFvtKFOQF/9DlLZGa2oiwkLSLZi/UjW1Tlas6PlC1QE+x64ihgmW4jJaZqBpKBE0MoFBICvksgknSAAkki2HACdJYSyidIhDIMkl2sgtKJQiAAEUkCAgiB/rTff//PYDFJJNXl7LCJAWTCkIV7a24BkUgiEEUkGqFs3/8AhCIFkXVCkASw2WCRLRAZBZchQRFgFJKANFmk0S3WSCXAkIkBIaBRLRQTTTFUMJFkhgkuEQxGqww0Q1RRJBKIJSRCjQEExIEKMlplkWSQy0wC0EsxQCDRDYIdIDEVEBihIIgRkWwQQnACSDGBACJCIBRTBSEEgMFEHE0AsS5SUUWyUVcxlJDpKNJTJQEtABpBpxoQAWCSE4ZCy0wxDBRjlFDpCCEIh1lMBQlkMamCIx0Mq4jR6cDASQNoZqFZJMNBkQJ44WWQwgKQCSERKY5IDUgBMZGgEJIMFtktgQE807ACCRDAzzPBse24wXEMsJJhBdEBkQy4AXCKAighCabLIYKIaZEAJowIokGhkTQCGCy2CQkRBRDRBaSIaTFEEkpklNNOESGQE0UYyQ0RRRIIDTDBJAFpkghNONqqoWmCwQmCg0QhBDRTIKBYIAEpENJxoFFFoQAGQiCiWECBMLLTDTVBTYEyggFhEgBUAQGoQES40GExVTTRJJVRAQAecPbxbVef8VQQQ4wQwE0BBTBaaKYAYJFMlAAEANNNESGgHGiGUC0RTYZAAJBRAcEhEFwkEoJkEAPXl14g57RxIITVlTAIIKDjb/oC7de5oSCAkU0SACihqYTABLjTCKFpphxohMFMEQU2EQSAwWmBaJAYaIJBjQDOTcPb3bL+4P0tdcv+sNIhBTAaCJBTDVEENMAlgEkgIbHGQASmSQARCYaJBRDRTTDbALpBWDJIcQU0QCQQ5Y2hBBTRLRCaYTFUlMAhOMglEAvkt0cuvsvA9OiuifHw3HFNMNEAEBMAoWACASmiSCShYBTTBBKaIKBj5OJSo623IN01fx/FokeBaaABRDTBKYC73CfNdUffYSCqgQQAA00w2CeKPlx6uXBfXWPUdlcxMQSCAGgAU5UQH33HdxX0RoDxrfaXT56GMQU00QSA00QQCRojnQzedxDz9yNFXcXPYDck9cCnrKUwVDgME4+GsgD7y67TywOS4NuzH35U/uWg+8+061Bc8+A7h7edS775sMZRx/nudhXgugGliBYa+8Dxz+dB5EEUQGvoXd998p8wVAekedjE8gAMOcAL6pdXcM7oEcik98NQ313eqq+9huCw/Wb7b55eUMm1dwmut0bgN3ybUsuG+HDWUSoD4pfeUJ9d881PnqugCec8bc4DzyC4KufffZgRgLrLdD99/mvBKaIBKaacqaDvfFNhefLfUM1UwzvjPmuAFzwIKoYHzjBNIS67765wAHKV18JxHhcQU++HwTCca8D65x77gfBXIAzug4YY88AA+Kq8+sICsbDcyOI5mXWfcN993N6gmUAQXwHE+e+O+4BPNOBz43NWIPvjPArimECguu8uq+K6eqBop47oogPNALnunmHLug0wjXy3Fws8HyBg6py5vMy64LuJ98F8Krugceu+s+M+uaAGfEFovUb64PuErAZY5Yzgql1Que6TVSAgAAFfePWVAF9cw9d98LvgsHwDzRO6YIAq4WMC43ApwLnvPlx8F58w11li++RBjAEgNEgEgEEEAOkQrqhYLLig+eoesqDhecCop7653OdAALrCnnvvvhcwQuYXxucu+qAXNC576pND4CBcAxvvHvvg+u8b3nUYViCpffCwgXBdILrGgQEQBd1A6ABjS+ucq3BfZ2NCwlC5wHc9wnnLnG4QC+D31QaH13DffML4gp75wGrnvrGh89wg+saaeqBE+uD676ofD4mfUN1ugZ9d9d9Q13zCaDQHwVBJiffHdGNBoBd859d9858wO+FgIDhDjjAAEC6yqVFEMN9U9998999wxnTxuu8K+eDyoC75775xsN985d9dZYLg+F3zV1lguYAD57zyffNEoA985894Xvvg+YD31S+saaB775FjfNFOMAQqiAXvrLGgKuuqKaBje+CyxmWMAOMAgFdd800AUU4QMu+uoXzlQXDPeEJxy67wgAxPvvmZUrrAaB31zeqF13DfWNMAnefBcM0PnvvmEwvguoVguaJAAKB765oPfXeOMAjc9zvCrvnAo3zM+e6ess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ANXNOWF7664PHLql890E9wjjRAKaBRAFDOfXffOfEgAA45d9d9YLBQzn3xBMYAJlCEp76pWMJogE0QAQrnugCAD33wFgaBCaAFEAq5hMb74LF98Q59dd0guYAIAM8cuaBopxgz4vffUIGldYTLvrGgKaccsJTQ+eDoFOfNEAPVAHvviGk5d9YQMaIAIBTQaDCfND4CxxpowPrvrvrqg99QQDhe+YTCu+Bq76wlFNBwgCE5YQA800UwQcaBTjlgusAvfNXNNAhNACiE5Y0QrmEwRABAD3zABTBEPWXfNNAhUNd800A99Y0AKIC+cYAeqDCNAp75gC5yoAQrmFc1c0PgDQKD3gaBRAAEAzwOWEogACAU0vnugCmgIAIXxTTQKIBXWEEAEAEAEAAQARPvnukwRCaIC+IIC+BxgBwvfMJoEEQAQAQF8QLge6Tl33xIAIABwggFXMK5oGgUQAQAVddQRE+qVzCuuqAgAneXMAPfUIQ98wrrBd8wlQcaAcaBRAAOOWEE775ooGg9RvHGgUVQ11RV1hAuaIAq6wlNAogAgAHHGrmACAvge6VzTn1zBMC76xywfPffUEAQrrCBddQguYTRTQe8DRBNAogBwggPcM05Y0BcSmgwhMsaBRABABAApoOEq66oMN8wF8QQAQAQABAAe++JVzAAPfXfML4qoF8TPrGgUU0QAXz3l13131CF75p774gq4LvrqiACAA4wQKIAIXxVQKAQCsRAWgAlgAAAABAAAAAQJj/j/gZziFAONAoONAhNACnvrvrqhcTA++e6uBKDjQBwggAgAgB74Lqg999d985QheqBRAKaBRAAEAPfXfWEoGg9980QQvgQD1QuaJTQe+BgBxxgGfWNAA99800CnvmQ3l1hD31hD3DXVEAFXfOfUIQQAQAQCmgQT1RAXzlhBAAz7743fXeNACirrvrvmACAAIAKuYAIAeD5gAXNEEAEAAQALrqAU58w3QAMsaBV3zAAhNAoq75ogCABc5UQrmFQ1hBABABAKaAFEK75yoOOcM90ZYSg9UVQzAD33zRBABAAFXfXUAPfMAHvqg4QQAQABABAM++N31DdEK5gFXNXME585UCiACAAIAIAeqIAIAAgAgB6ogAgAA40CimiACAAe+uqITQucqAgAgAgB75gACACACAA40CgIAIVzABAD3DMAEAEAPfXUE98wF84wAQABABABAXxBAAFXfOfXfMAoGgUQA98xPrgd11TS+cYAIBNC5oggAgB4KiAHvrvrCCAAIAIAIAIX1DfeNB775olMECiAHCA45YwQKIAIAcIIAAgB7767xxoEE99d8wAQrrAF1hBADhM++C7pNAp75gBwC999ZY5d8QQABVzE+uqM+D5poFPfMAPcN858wAQAVdQ1E+DRABB3jBEAEAEHffNAHvmACAHvrvg+aYAIAIAe+BgAhfXeNNAoCAU0HCCAvrg+Zn1jQe+u+Bq6wggB75gACACFcwAQA9w131hBAM+sLDNNAONBwggEE0viCE0QmiguYVzABABAB")
+format = 3
+
+[sub_resource type="AudioStream" id="AudioStream_pe27w"]
+
+[sub_resource type="PackedScene" id="PackedScene_16gyk"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("VN_ChoiceLayer", "Control", "layout_mode", "anchors_preset", "anchor_right", "anchor_bottom", "grow_horizontal", "grow_vertical", "mouse_filter", "script", "Choices", "VBoxContainer", "layout_mode", "anchors_preset", "anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "grow_vertical", "mouse_filter", "alignment", "metadata/_edit_layout_mode", "DialogicNode_ButtonSound", "AudioStreamPlayer", "unique_name_in_owner", "script", "sound_pressed", "sound_hover", "sound_focus"),
+"node_count": 3,
+"node_ids": PackedInt32Array(0, 0, 0),
+"node_paths": [NodePath("."), NodePath("./Choices")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 8, 2, 0, 3, 1, 4, 2, 5, 3, 6, 4, 7, 5, 8, 6, 9, 7, 0, 1073741824, 0, 11, 10, -1, 15, 12, 8, 13, 9, 14, 10, 15, 11, 16, 12, 17, 13, 18, 14, 19, 15, 20, 16, 21, 17, 22, 18, 23, 19, 24, 20, 25, 21, 26, 22, 0, 1073741825, 0, 28, 27, -1, 5, 29, 23, 30, 24, 31, 25, 32, 26, 33, 27, 0),
+"variants": [3, 15, 1.0, 1.0, 2, 2, 2, SubResource("GDScript_icl5g"), 1, 8, 0.5, 0.5, 0.5, 0.5, -41.0, -47.0, 42.0, 47.0, 2, 2, 2, 1, 1, true, SubResource("GDScript_u7l8y"), SubResource("AudioStreamWAV_mi18t"), SubResource("AudioStreamWAV_kw3te"), SubResource("AudioStream_pe27w")],
+"version": 3
+}
+
+[sub_resource type="Resource" id="Resource_kw3te"]
+script = SubResource("GDScript_ejk17")
+scene = SubResource("PackedScene_16gyk")
+
+[sub_resource type="GDScript" id="GDScript_amq80"]
+script/source = "@tool
+extends DialogicLayoutLayer
+
+## A layer that contains a text-input node.
+
+
+func _apply_export_overrides() -> void:
+	var layer_theme: Theme = get(&'theme')
+	if layer_theme == null:
+		layer_theme = Theme.new()
+
+	if get_global_setting(&'font', ''):
+		layer_theme.default_font = load(get_global_setting(&'font', '') as String)
+	layer_theme.default_font_size = get_global_setting(&'font_size', 0)
+"
+
+[sub_resource type="GDScript" id="GDScript_85bn8"]
+script/source = "class_name DialogicNode_TextInput
+extends Control
+
+## Node that will show when a text input field is reached.
+## Should be connected to a (probably contained) label, a line edit and a button to work.
+
+## The LineEdit to use.
+@export_node_path var input_line_edit: NodePath
+## The Label to use.
+@export_node_path var text_label: NodePath
+## The Button to use.
+@export_node_path var confirmation_button: NodePath
+
+# This is set by the subsystem and used as a confirmation check.
+var _allow_empty := false
+
+
+func _ready() -> void:
+	add_to_group('dialogic_text_input')
+	if confirmation_button:
+		get_node(confirmation_button).pressed.connect(_on_confirmation_button_pressed)
+	if input_line_edit:
+		get_node(input_line_edit).text_changed.connect(_on_input_text_changed)
+		get_node(input_line_edit).text_submitted.connect(_on_confirmation_button_pressed)
+	visible = false
+
+
+func set_text(text:String) -> void:
+	if get_node(text_label) is Label:
+		get_node(text_label).text = text
+
+
+func set_placeholder(placeholder:String) -> void:
+	if get_node(input_line_edit) is LineEdit:
+		get_node(input_line_edit).placeholder_text = placeholder
+		get_node(input_line_edit).grab_focus()
+
+
+func set_default(default:String) -> void:
+	if get_node(input_line_edit) is LineEdit:
+		get_node(input_line_edit).text = default
+		_on_input_text_changed(default)
+
+
+func set_allow_empty(boolean:bool) -> void:
+	_allow_empty = boolean
+
+
+func _on_input_text_changed(text:String) -> void:
+	if confirmation_button.is_empty():
+		return
+	get_node(confirmation_button).disabled = !_allow_empty and text.is_empty()
+
+
+func _on_confirmation_button_pressed(text:=\"\") -> void:
+	if get_node(input_line_edit) is LineEdit:
+		if !get_node(input_line_edit).text.is_empty() or _allow_empty:
+			DialogicUtil.autoload().TextInput.input_confirmed.emit(get_node(input_line_edit).text)
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3dpjm"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="Theme" id="Theme_8xwp1"]
+
+[sub_resource type="PackedScene" id="PackedScene_yf2ua"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("TextInputLayer", "Control", "layout_mode", "anchors_preset", "anchor_right", "anchor_bottom", "grow_horizontal", "grow_vertical", "mouse_filter", "script", "DialogicNode_TextInput", "Control", "layout_mode", "anchors_preset", "anchor_left", "anchor_top", "anchor_right", "anchor_bottom", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "grow_vertical", "mouse_filter", "script", "input_line_edit", "text_label", "confirmation_button", "metadata/_edit_layout_mode", "TextInputPanel", "PanelContainer", "unique_name_in_owner", "self_modulate", "layout_mode", "anchors_preset", "anchor_right", "anchor_bottom", "grow_horizontal", "grow_vertical", "theme_override_styles/panel", "VBoxContainer", "VBoxContainer", "layout_mode", "TextLabel", "Label", "unique_name_in_owner", "layout_mode", "theme", "text", "autowrap_mode", "InputField", "LineEdit", "layout_mode", "ConfirmationButton", "Button", "layout_mode", "size_flags_horizontal", "text"),
+"node_count": 7,
+"node_ids": PackedInt32Array(0, 0, 0, 0, 0, 0, 0),
+"node_paths": [NodePath("."), NodePath("./DialogicNode_TextInput"), NodePath("./DialogicNode_TextInput/TextInputPanel"), NodePath("./DialogicNode_TextInput/TextInputPanel/VBoxContainer"), NodePath("./DialogicNode_TextInput/TextInputPanel/VBoxContainer"), NodePath("./DialogicNode_TextInput/TextInputPanel/VBoxContainer")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 8, 2, 0, 3, 1, 4, 2, 5, 3, 6, 4, 7, 5, 8, 6, 9, 7, 0, 1073741824, 0, 11, 10, -1, 18, 12, 8, 13, 9, 14, 10, 15, 11, 16, 12, 17, 13, 18, 14, 19, 15, 20, 16, 21, 17, 22, 18, 23, 19, 24, 20, 25, 21, 26, 22, 27, 23, 28, 24, 29, 25, 0, 1073741825, 0, 31, 30, -1, 9, 32, 26, 33, 27, 34, 28, 35, 29, 36, 30, 37, 31, 38, 32, 39, 33, 40, 34, 0, 1073741826, 0, 42, 41, -1, 1, 43, 35, 0, 1073741827, 0, 45, 44, -1, 5, 46, 36, 47, 37, 48, 38, 49, 39, 50, 40, 0, 1073741828, 0, 52, 51, -1, 1, 53, 41, 0, 1073741829, 0, 55, 54, -1, 3, 56, 42, 57, 43, 58, 44, 0),
+"variants": [3, 15, 1.0, 1.0, 2, 2, 2, SubResource("GDScript_amq80"), 1, 8, 0.5, 0.5, 0.5, 0.5, -210.0, -50.0, 210.0, 50.0, 2, 2, 2, SubResource("GDScript_85bn8"), NodePath("TextInputPanel/VBoxContainer/InputField"), NodePath("TextInputPanel/VBoxContainer/TextLabel"), NodePath("TextInputPanel/VBoxContainer/ConfirmationButton"), 1, true, Color(0, 0, 0, 0.780392), 1, 15, 1.0, 1.0, 2, 2, SubResource("StyleBoxFlat_3dpjm"), 2, true, 2, SubResource("Theme_8xwp1"), "Please enter some text:", 3, 2, 2, 8, "Confirm"],
+"version": 3
+}
+
+[sub_resource type="Resource" id="Resource_16gyk"]
+script = SubResource("GDScript_ejk17")
+scene = SubResource("PackedScene_yf2ua")
+
+[sub_resource type="GDScript" id="GDScript_t45hg"]
+script/source = "@tool
+extends DialogicLayoutLayer
+
+## Example scene for viewing the History
+## Implements most of the visual options from 1.x History mode
+
+@export_group('Look')
+@export_subgroup('Font')
+@export var font_use_global_size: bool = true
+@export var font_custom_size: int = 15
+@export var font_use_global_fonts: bool = true
+@export_file('*.ttf', '*.tres') var font_custom_normal: String = \"\"
+@export_file('*.ttf', '*.tres') var font_custom_bold: String = \"\"
+@export_file('*.ttf', '*.tres') var font_custom_italics: String = \"\"
+
+@export_subgroup('Buttons')
+@export var show_open_button: bool = true
+@export var show_close_button: bool = true
+
+@export_group('Settings')
+@export_subgroup('Events')
+@export var show_all_choices: bool = true
+@export var show_join_and_leave: bool = true
+
+@export_subgroup('Behaviour')
+@export var scroll_to_bottom: bool = true
+@export var show_name_colors: bool = true
+@export var name_delimeter: String = \": \"
+
+var scroll_to_bottom_flag: bool = false
+
+@export_group('Private')
+@export var HistoryItem: PackedScene = null
+
+var history_item_theme: Theme = null
+
+func get_show_history_button() -> Button:
+	return $ShowHistory
+
+
+func get_hide_history_button() -> Button:
+	return $HideHistory
+
+
+func get_history_box() -> ScrollContainer:
+	return %HistoryBox
+
+
+func get_history_log() -> VBoxContainer:
+	return %HistoryLog
+
+
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+	DialogicUtil.autoload().History.open_requested.connect(_on_show_history_pressed)
+	DialogicUtil.autoload().History.close_requested.connect(_on_hide_history_pressed)
+
+
+func _apply_export_overrides() -> void:
+	var history_subsystem: Node = DialogicUtil.autoload().get(&'History')
+	if history_subsystem != null:
+		get_show_history_button().visible = show_open_button and history_subsystem.get(&'simple_history_enabled')
+	else:
+		set(&'visible', false)
+
+	history_item_theme = Theme.new()
+
+	if font_use_global_size:
+		history_item_theme.default_font_size = get_global_setting(&'font_size', font_custom_size)
+	else:
+		history_item_theme.default_font_size = font_custom_size
+
+	if font_use_global_fonts and ResourceLoader.exists(get_global_setting(&'font', '') as String):
+		history_item_theme.default_font = load(get_global_setting(&'font', '') as String) as Font
+	elif ResourceLoader.exists(font_custom_normal):
+		history_item_theme.default_font = load(font_custom_normal)
+
+	if ResourceLoader.exists(font_custom_bold):
+		history_item_theme.set_font(&'RichtTextLabel', &'bold_font', load(font_custom_bold) as Font)
+	if ResourceLoader.exists(font_custom_italics):
+		history_item_theme.set_font(&'RichtTextLabel', &'italics_font', load(font_custom_italics) as Font)
+
+
+
+func _process(_delta : float) -> void:
+	if Engine.is_editor_hint():
+		return
+	if scroll_to_bottom_flag and get_history_box().visible and get_history_log().get_child_count():
+		await get_tree().process_frame
+		get_history_box().ensure_control_visible(get_history_log().get_children()[-1] as Control)
+		scroll_to_bottom_flag = false
+
+
+func _on_show_history_pressed() -> void:
+	DialogicUtil.autoload().paused = true
+	show_history()
+
+
+func show_history() -> void:
+	for child: Node in get_history_log().get_children():
+		child.queue_free()
+
+	var history_subsystem: Node = DialogicUtil.autoload().get(&'History')
+	for info: Dictionary in history_subsystem.call(&'get_simple_history'):
+		var history_item : Node = HistoryItem.instantiate()
+		history_item.set(&'theme', history_item_theme)
+		match info.event_type:
+			\"Text\":
+				if info.has('character') and info['character']:
+					if show_name_colors:
+						history_item.call(&'load_info', info['text'], info['character']+name_delimeter, info['character_color'])
+					else:
+						history_item.call(&'load_info', info['text'], info['character']+name_delimeter)
+				else:
+					history_item.call(&'load_info', info['text'])
+			\"Character\":
+				if !show_join_and_leave:
+					history_item.queue_free()
+					continue
+				history_item.call(&'load_info', '[i]'+info['text'])
+			\"Choice\":
+				var choices_text: String = \"\"
+				if show_all_choices:
+					for i : String in info['all_choices']:
+						if i.ends_with('#disabled'):
+							choices_text += \"-  [i](\"+i.trim_suffix('#disabled')+\")[/i]\\n\"
+						elif i == info['text']:
+							choices_text += \"-> [b]\"+i+\"[/b]\\n\"
+						else:
+							choices_text += \"-> \"+i+\"\\n\"
+				else:
+					choices_text += \"- [b]\"+info['text']+\"[/b]\\n\"
+				history_item.call(&'load_info', choices_text)
+
+		get_history_log().add_child(history_item)
+
+	if scroll_to_bottom:
+		scroll_to_bottom_flag = true
+
+	get_show_history_button().hide()
+	get_hide_history_button().visible = show_close_button
+	get_history_box().show()
+
+
+func _on_hide_history_pressed() -> void:
+	DialogicUtil.autoload().paused = false
+	get_history_box().hide()
+	get_hide_history_button().hide()
+	var history_subsystem: Node = DialogicUtil.autoload().get(&'History')
+	get_show_history_button().visible = show_open_button and history_subsystem.get(&'simple_history_enabled')
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_upgjp"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.780392, 0.780392, 0.780392, 0.156863)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="GDScript" id="GDScript_bxovw"]
+script/source = "extends Container
+
+func get_text_box() -> RichTextLabel:
+	return %TextBox
+
+
+func get_name_label() -> Label:
+	return %NameLabel
+
+
+func get_icon() -> TextureRect:
+	return %Icon
+
+
+func load_info(text:String, character:String = \"\", character_color: Color =Color(), icon:Texture= null) -> void:
+	get_text_box().text = text
+	var name_label: Label = get_name_label()
+	if character:
+		name_label.text = character
+		name_label.add_theme_color_override('font_color', character_color)
+		name_label.show()
+	else:
+		name_label.hide()
+
+	var icon_node: TextureRect = get_icon()
+	if icon == null:
+		icon_node.hide()
+	else:
+		icon_node.show()
+		icon_node.texture = icon
+"
+
+[sub_resource type="PackedScene" id="PackedScene_ppfwk"]
+_bundled = {
+"conn_count": 0,
+"conns": PackedInt32Array(),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("HistoryItem", "PanelContainer", "offset_left", "offset_top", "offset_right", "offset_bottom", "theme_override_styles/panel", "script", "HBoxContainer", "HBoxContainer", "layout_mode", "Icon", "TextureRect", "unique_name_in_owner", "custom_minimum_size", "layout_mode", "expand_mode", "stretch_mode", "NameLabel", "Label", "unique_name_in_owner", "layout_mode", "size_flags_vertical", "TextBox", "RichTextLabel", "unique_name_in_owner", "layout_mode", "size_flags_horizontal", "size_flags_vertical", "bbcode_enabled", "text", "fit_content"),
+"node_count": 5,
+"node_ids": PackedInt32Array(0, 0, 0, 0, 0),
+"node_paths": [NodePath("."), NodePath("./HBoxContainer"), NodePath("./HBoxContainer"), NodePath("./HBoxContainer")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 6, 2, 0, 3, 1, 4, 2, 5, 3, 6, 4, 7, 5, 0, 1073741824, 0, 9, 8, -1, 1, 10, 6, 0, 1073741825, 0, 12, 11, -1, 5, 13, 7, 14, 8, 15, 9, 16, 10, 17, 11, 0, 1073741826, 0, 19, 18, -1, 3, 20, 12, 21, 13, 22, 14, 0, 1073741827, 0, 24, 23, -1, 7, 25, 15, 26, 16, 27, 17, 28, 18, 29, 19, 30, 20, 31, 21, 0),
+"variants": [-37.0, 510.0, 1085.0, 555.0, SubResource("StyleBoxFlat_upgjp"), SubResource("GDScript_bxovw"), 2, true, Vector2(30, 30), 2, 1, 4, true, 2, 0, true, 2, 3, 4, true, "Some tex", true],
+"version": 3
+}
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1hdvb"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0, 0, 0, 0.776471)
+border_color = Color(0.8, 0.8, 0.8, 0)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="PackedScene" id="PackedScene_omjjs"]
+_bundled = {
+"conn_count": 2,
+"conns": PackedInt32Array(1073741828, 1073741829, 74, 75, 2, 0, 0, 1073741830, 1073741831, 76, 77, 2, 0, 0),
+"editable_instances": [],
+"id_paths": [PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array(), PackedInt32Array()],
+"names": PackedStringArray("ExampleHistoryScene", "Control", "layout_direction", "layout_mode", "anchors_preset", "anchor_right", "anchor_bottom", "grow_horizontal", "grow_vertical", "size_flags_horizontal", "size_flags_vertical", "mouse_filter", "script", "font_use_global_size", "font_custom_size", "font_use_global_fonts", "font_custom_normal", "font_custom_bold", "font_custom_italics", "HistoryItem", "disabled", "HistoryBox", "ScrollContainer", "unique_name_in_owner", "visible", "layout_mode", "anchors_preset", "anchor_right", "anchor_bottom", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "grow_vertical", "size_flags_vertical", "theme_override_styles/panel", "horizontal_scroll_mode", "HistoryLog", "VBoxContainer", "unique_name_in_owner", "layout_direction", "layout_mode", "size_flags_horizontal", "size_flags_vertical", "ShowHistory", "Button", "layout_mode", "anchors_preset", "anchor_left", "anchor_right", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "size_flags_horizontal", "size_flags_vertical", "text", "HideHistory", "Button", "visible", "layout_mode", "anchors_preset", "anchor_left", "anchor_right", "offset_left", "offset_top", "offset_right", "offset_bottom", "grow_horizontal", "size_flags_horizontal", "size_flags_vertical", "text", "pressed", "_on_show_history_pressed", "pressed", "_on_hide_history_pressed"),
+"node_count": 5,
+"node_ids": PackedInt32Array(0, 0, 0, 0, 0),
+"node_paths": [NodePath("."), NodePath("./HistoryBox"), NodePath("."), NodePath("."), NodePath("ShowHistory"), NodePath("."), NodePath("HideHistory"), NodePath(".")],
+"nodes": PackedInt32Array(-1, -1, 1, 0, -1, 19, 2, 0, 3, 1, 4, 2, 5, 3, 6, 4, 7, 5, 8, 6, 9, 7, 10, 8, 11, 9, 12, 10, 13, 11, 14, 12, 15, 13, 16, 14, 17, 15, 18, 16, 19, 17, 20, 18, 0, 1073741824, 0, 22, 21, -1, 15, 23, 19, 24, 20, 25, 21, 26, 22, 27, 23, 28, 24, 29, 25, 30, 26, 31, 27, 32, 28, 33, 29, 34, 30, 35, 31, 36, 32, 37, 33, 0, 1073741825, 0, 39, 38, -1, 5, 40, 34, 41, 35, 42, 36, 43, 37, 44, 38, 0, 1073741826, 0, 46, 45, -1, 12, 47, 39, 48, 40, 49, 41, 50, 42, 51, 43, 52, 44, 53, 45, 54, 46, 55, 47, 56, 48, 57, 49, 58, 50, 0, 1073741827, 0, 60, 59, -1, 13, 61, 51, 62, 52, 63, 53, 64, 54, 65, 55, 66, 56, 67, 57, 68, 58, 69, 59, 70, 60, 71, 61, 72, 62, 73, 63, 0),
+"variants": [1, 3, 15, 1.0, 1.0, 2, 2, 3, 3, 2, SubResource("GDScript_t45hg"), null, null, null, null, null, null, SubResource("PackedScene_ppfwk"), null, true, false, 1, 15, 1.0, 1.0, 74.0, 65.0, -74.0, -57.0, 2, 2, 3, SubResource("StyleBoxFlat_1hdvb"), 0, true, 1, 2, 3, 3, 1, 1, 1.0, 1.0, -73.0, 7.0, -9.0, 38.0, 0, 4, 4, "History", false, 1, 1, 1.0, 1.0, -123.0, 58.0, -62.0, 89.0, 0, 4, 4, "Return"],
+"version": 3
+}
+
+[sub_resource type="Resource" id="Resource_amq80"]
+script = SubResource("GDScript_ejk17")
+scene = SubResource("PackedScene_omjjs")
+
+[sub_resource type="GDScript" id="GDScript_gfml2"]
+script/source = "@tool
+extends Resource
+class_name DialogicStyle
+
+## A style represents a collection of layers and settings.
+## A style can inherit from another style.
+
+
+@export var name := \"Style\":
+	get:
+		if name.is_empty():
+			return \"Unkown Style\"
+		return name
+
+@export var inherits: DialogicStyle = null
+
+## Stores the layer order
+@export var layer_list: Array[String] = []
+## Stores the layer infos
+@export var layer_info := {
+	\"\" : DialogicStyleLayer.new()
+}
+
+
+func _init(_name := \"\") -> void:
+	if not _name.is_empty():
+		name = _name
+
+
+#region BASE METHODS
+# These methods are local, meaning they do NOT take inheritance into account.
+
+func clear() -> void:
+	layer_list = []
+	layer_info = {\"\" : DialogicStyleLayer.new()}
+	inherits = null
+
+
+## Returns the amount of layers (the base layer is not included).
+func get_layer_count() -> int:
+	return layer_list.size()
+
+
+## Returns the index of the layer with [param id] in the layer list.
+## Returns -1 for the base layer (id==\"\") which is not in the layer list.
+func get_layer_index(id:String) -> int:
+	return layer_list.find(id)
+
+
+## Returns `true` if [param id] is a valid id for a layer.
+func has_layer(id:String) -> bool:
+	return id in layer_info or id == \"\"
+
+
+## Returns `true` if [param index] is a valid index for a layer.
+func has_layer_index(index:int) -> bool:
+	return index < layer_list.size()
+
+
+## Returns the id of the layer at [param index].
+func get_layer_id_at_index(index:int) -> String:
+	if index == -1:
+		return \"\"
+	if has_layer_index(index):
+		return layer_list[index]
+	return \"\"
+
+
+func get_layer_info(id:String) -> Dictionary:
+	var info := {\"id\": id, \"path\": \"\", \"overrides\": {}}
+
+	if has_layer(id):
+		var layer_resource: DialogicStyleLayer = layer_info[id]
+
+		if layer_resource.scene != null:
+			info.path = layer_resource.scene.resource_path
+		elif id == \"\":
+			info.path = DialogicStylesUtil.get_default_layout_base().resource_path
+
+		info.overrides = layer_resource.overrides.duplicate()
+
+	return info
+
+#endregion
+
+
+#region MODIFICATION METHODS
+# These methods modify the layers of this style.
+
+
+## Returns a new layer id not yet in use.
+func get_new_layer_id() -> String:
+	var i := 16
+	while String.num_int64(i, 16) in layer_info:
+		i += 1
+	return String.num_int64(i, 16)
+
+
+## Adds a layer with the given scene and overrides.
+## Returns the new layers id.
+func add_layer(scene:String, overrides:Dictionary = {}, id:= \"##\") -> String:
+	if id == \"##\":
+		id = get_new_layer_id()
+	layer_info[id] = DialogicStyleLayer.new(scene, overrides)
+	layer_list.append(id)
+	changed.emit()
+	return id
+
+
+## Deletes the layer with the given id.
+## Deleting the base layer is not allowed.
+func delete_layer(id:String) -> void:
+	if not has_layer(id) or id == \"\":
+		return
+
+	layer_info.erase(id)
+	layer_list.erase(id)
+
+	changed.emit()
+
+
+## Moves the layer at [param from_index] to [param to_index].
+func move_layer(from_index:int, to_index:int) -> void:
+	if not has_layer_index(from_index) or not has_layer_index(to_index-1):
+		return
+
+	var id: String = layer_list.pop_at(from_index)
+	layer_list.insert(to_index, id)
+
+	changed.emit()
+
+
+## Changes the scene property of the DialogicStyleLayer resource at [param layer_id].
+func set_layer_scene(layer_id:String, scene:String) -> void:
+	if not has_layer(layer_id):
+		return
+	layer_info[layer_id].scene = load(scene)
+	changed.emit()
+
+
+func set_layer_overrides(layer_id:String, overrides:Dictionary) -> void:
+	if not has_layer(layer_id):
+		return
+
+	layer_info[layer_id].overrides = overrides
+	changed.emit()
+
+
+## Changes an override of the DialogicStyleLayer resource at [param layer_id].
+func set_layer_setting(layer_id:String, setting:String, value:Variant) -> void:
+	if not has_layer(layer_id):
+		return
+
+	layer_info[layer_id].overrides[setting] = value
+	changed.emit()
+
+
+## Resets (removes) an override of the DialogicStyleLayer resource at [param layer_id].
+func remove_layer_setting(layer_id:String, setting:String) -> void:
+	if not has_layer(layer_id):
+		return
+
+	layer_info[layer_id].overrides.erase(setting)
+	changed.emit()
+
+#
+#endregion
+
+
+#region INHERITANCE METHODS
+# These methods are what you should usually use to get info about this style.
+
+
+## Returns `true` if this style is inheriting from another style.
+func inherits_anything() -> bool:
+	return inherits != null
+
+
+## Returns the base style of this style.
+func get_inheritance_root() -> DialogicStyle:
+	if not inherits_anything():
+		return self
+
+	var style: DialogicStyle = self
+	while style.inherits_anything():
+		style = style.inherits
+
+	return style
+
+
+## This merges some [param layer_info] with it's param ancestors layer info.
+func merge_layer_infos(new_layer_info:Dictionary, ancestor_info:Dictionary) -> Dictionary:
+	var combined := new_layer_info.duplicate(true)
+
+	combined.path = ancestor_info.path
+	combined.overrides.merge(ancestor_info.overrides)
+
+	return combined
+
+
+## Returns the layer info of the layer at [param id] taking into account inherited info.
+## If [param inherited_only] is `true`, the local info is not included.
+func get_layer_inherited_info(id:String, inherited_only := false) -> Dictionary:
+	var style := self
+	var info := {\"id\": id, \"path\": \"\", \"overrides\": {}}
+
+	if not inherited_only:
+		info = get_layer_info(id)
+
+	while style.inherits_anything():
+		style = style.inherits
+		info = merge_layer_infos(info, style.get_layer_info(id))
+
+	return info
+
+
+## Returns the layer list of the root style.
+func get_layer_inherited_list() -> Array:
+	var list := layer_list
+
+	if inherits_anything():
+		list = get_inheritance_root().layer_list
+
+	return list
+
+
+## Applies inherited info to the local layers.
+## Then removes inheritance.
+func realize_inheritance() -> void:
+	layer_list = get_layer_inherited_list()
+
+	var new_layer_info := {}
+	for id in layer_info:
+		var info := get_layer_inherited_info(id)
+		new_layer_info[id] = DialogicStyleLayer.new(info.get(\"path\", \"\"), info.get(\"overrides\", {}))
+
+	layer_info = new_layer_info
+	inherits = null
+	changed.emit()
+
+
+#endregion
+
+## Creates a fresh new style with the same settings.
+func clone() -> DialogicStyle:
+	var style := DialogicStyle.new()
+	style.name = name
+	style.inherits = inherits
+
+	var base_info := get_layer_info(\"\")
+	style.set_layer_scene(\"\", base_info.path)
+	style.set_layer_overrides(\"\", base_info.overrides)
+
+	for id in layer_list:
+		var info := get_layer_info(id)
+		style.add_layer(info.path, info.overrides, id)
+
+	return style
+
+
+## Starts preloading all the scenes used by this style.
+func prepare() -> void:
+	for id in layer_info:
+		if layer_info[id].scene:
+			ResourceLoader.load_threaded_request(layer_info[id].scene.resource_path)
+
+
+#region UPDATE OLD STYLES
+# TODO deprecated when going into beta
+
+# TODO  Deprecated, only for Styles before alpha 16!
+@export var base_scene: PackedScene = null
+# TODO Deprecated, only for Styles before alpha 16!
+@export var base_overrides := {}
+# TODO Deprecated, only for Styles before alpha 16!
+@export var layers: Array[DialogicStyleLayer] = []
+
+func update_from_pre_alpha16() -> void:
+	if not layers.is_empty():
+		var idx := 0
+		for layer in layers:
+			var id := \"##\"
+			if inherits_anything():
+				id = get_layer_inherited_list()[idx]
+			if layer.scene:
+				add_layer(layer.scene.resource_path, layer.overrides, id)
+			else:
+				add_layer(\"\", layer.overrides, id)
+			idx += 1
+		layers.clear()
+
+	if not base_scene == null:
+		set_layer_scene(\"\", base_scene.resource_path)
+		base_scene = null
+	if not base_overrides.is_empty():
+		set_layer_overrides(\"\", base_overrides)
+		base_overrides.clear()
+
+
+#endregion
+"
+
+[resource]
+script = SubResource("GDScript_gfml2")
+>>>>>>> turnintegration:Assets/Backgrounds/Alien1_Textbox.tres
 name = "Alien1_Textbox"
 layer_list = Array[String](["10", "11", "12", "13", "14", "15", "16", "17"])
 layer_info = {
