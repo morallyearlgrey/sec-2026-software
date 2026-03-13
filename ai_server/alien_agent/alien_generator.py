@@ -20,6 +20,21 @@ I am looking to invite you to the grand opening for my \
 restaurant, but you don't know that yet. All you know is that I \
 approached your booth."
 
+    def get_prompt(self):
+        name = self.get_random_name()
+        mood = self.get_random_mood()
+        mbti = self.get_random_mbti()
+        situation = self.get_random_market_booth()
+        greeting = self.get_random_greeting()
+        
+        return {
+            name,
+            mood,
+            mbti,
+            situation,
+            greeting
+        }
+
     def get_random_name(self):
         rand = random.randint(0, len(self.alien_names))
         return self.alien_names[rand]
