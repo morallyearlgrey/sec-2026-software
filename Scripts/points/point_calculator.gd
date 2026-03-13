@@ -1,36 +1,34 @@
-import re
-
 extends Node
 
-func calculate_points(input: String, alien_id: String) -> int:
-	var score = 0
+func calculate_points(input: String, alien_id: int):
+	var score = 0;
 	
-	var clean_input = ""
-	for ch in input:
-		if ch.to_upper() != ch.to_lower() or ch == " ":  
-			clean_input += ch.to_lower()
-		else:
-			clean_input += " "
-	
-	var words = clean_input.split(" ", false) 
-	var good_words = Aliens.get_alien(alien_id)["liked_words"].duplicate()
-	var bad_words = Aliens.get_alien(alien_id)["banned_words"].duplicate()
-	
-	for word in words:
-		if good_words.has(word):
-			score += good_words[word]
-			good_words.erase(word) 
+	var good_words = Aliens.get_alien(alien_id)["liked_words"];
+	var bad_words = Aliens.get_alien(alien_id)["banned_words"];
 		
-		if bad_words.has(word):
-			bad_words.erase(word)
-	
-	return max(score, 0) 
+	input = input.to_lower();
+	var re = RegEx.new();
+	re.compile("[^a-zA-Z0-9\\s]");
+	input = re.sub(input, " ");
 
+	var new_input = input.split(" ");
+	
+	for word in good_words.keys():
+		if word.to_lower()==new_input:
+			score += good_words[word];
+		
+	for word in bad_words.keys():
+		if word.to_lower()==new_input:
+			score += good_words[word];
+		
+	if(score<0):
+		score=0;
+		
+	Aliens.get_alien(alien_id)["points"]=score;
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

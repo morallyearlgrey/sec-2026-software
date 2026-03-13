@@ -17,7 +17,8 @@ config/icon="res://Assets/Characters/icon.svg"
 
 [autoload]
 
-Global="*uid://x4d5q2hm6ers"
+Aliens="*uid://x4d5q2hm6ers"
+cur_alien_idx="*uid://x4d5q2hm6ers"
 
 [editor]
 

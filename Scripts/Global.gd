@@ -1,5 +1,6 @@
 extends Node
 
+# tal should update the var names
 # index, int
 # name, string
 # mood, string
@@ -14,14 +15,10 @@ extends Node
 const Aliens = {
 }
 
-func get_alien(alien_id: String) -> Dictionary:
-	return alien_state.get(alien_id, {})
+var cur_alien_idx = 0;
 
-func add_points(alien_id: String, amount: int):
-	if alien_state.has(alien_id):
-		alien_state[alien_id]["points"] += amount
-
-	
+func get_alien(alien_id: int) -> Dictionary:
+	return Aliens.get(alien_id, {})
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
