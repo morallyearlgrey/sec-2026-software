@@ -19,9 +19,9 @@ def is_valid_len(input: str) -> bool:
         return False;
 
 # clean
-def clean(input: str) -> str:
+def clean(input: str) -> list:
     # delete symbols, split up words
-    re.sub(r'[^a-zA-Z0-9\s]', ' ', input);
+    cleaned = re.sub(r'[^a-zA-Z0-9\s]', ' ', input)
     new_input = input.split(" ");
     return new_input;
 

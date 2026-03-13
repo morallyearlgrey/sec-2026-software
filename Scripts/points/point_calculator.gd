@@ -3,8 +3,8 @@ extends Node
 func calculate_points(input: String, alien_id: int):
 	var score = 0;
 	
-	var good_words = Aliens.get_alien(alien_id)["liked_words"];
-	var bad_words = Aliens.get_alien(alien_id)["banned_words"];
+	var good_words: Dictionary = Aliens.get_alien(alien_id)["liked_words"].duplicate()
+	var bad_words: Dictionary = Aliens.get_alien(alien_id)["banned_words"].duplicate()
 		
 	input = input.to_lower();
 	var re = RegEx.new();
@@ -16,10 +16,12 @@ func calculate_points(input: String, alien_id: int):
 	for word in good_words.keys():
 		if word.to_lower()==new_input:
 			score += good_words[word];
+			good_words.erase(word)
 		
 	for word in bad_words.keys():
 		if word.to_lower()==new_input:
 			score += good_words[word];
+			bad_words.erase(word)
 		
 	if(score<0):
 		score=0;
