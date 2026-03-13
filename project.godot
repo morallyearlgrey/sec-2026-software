@@ -28,8 +28,14 @@ directories/dch_directory={
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
-"first_alien": "res://Timelines/first_alien.dtl",
-"second_alien": "res://Timelines/second_alien.dtl"
+"eighth_alien": "res://Assets/Scenes/Timelines/eighth_alien.dtl",
+"fifth_alien": "res://Assets/Scenes/Timelines/fifth_alien.dtl",
+"first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
+"fourth_alien": "res://Assets/Scenes/Timelines/fourth_alien.dtl",
+"second_alien": "res://Assets/Scenes/Timelines/second_alien.dtl",
+"seventh_alien": "res://Assets/Scenes/Timelines/seventh_alien.dtl",
+"sixth_alien": "res://Assets/Scenes/Timelines/sixth_alien.dtl",
+"third_alien": "res://Assets/Scenes/Timelines/third_alien.dtl"
 }
 layout/style_directory={
 "": "res://Assets/Backgrounds/Alien1_Textbox.tres",
