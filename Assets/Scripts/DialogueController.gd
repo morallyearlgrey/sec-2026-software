@@ -6,7 +6,7 @@ var cur_alien = {};
 func setup_alien() -> void:
 	Global.num_turn=0;
 	cur_alien = Global.get_alien(Global.cur_alien_idx);
-	cur_alien["src"] = "res://Assets/Characters/images/alien%d.png" % (randi() % 8 + 1);
+	cur_alien["src"] = "res://Assets/Characters/images/alien_%d.png" % (randi() % 8 + 1);
 	
 	Global.alien_session_id = await APIClient.create_session("alien_agent");
 	Global.qa_session_id = await APIClient.create_session("qa_agent");

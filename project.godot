@@ -14,6 +14,7 @@ config/name="sec-2026-software"
 run/main_scene="res://Assets/Scenes/TitleScreen.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://Assets/Characters/icon.svg"
+<<<<<<<HEADrun/main_scene="res://Assets/Scenes/TitleScreen.tscn"
 
 [autoload]
 
@@ -36,9 +37,11 @@ directories/dch_directory={
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
+"Scripts/first_alien": "res://Assets/Scripts/first_alien.dtl",
+"Timelines/first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
 "eighth_alien": "res://Assets/Scenes/Timelines/eighth_alien.dtl",
 "fifth_alien": "res://Assets/Scenes/Timelines/fifth_alien.dtl",
-"first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
+"first_alien": "res://Timelines/first_alien.dtl",
 "fourth_alien": "res://Assets/Scenes/Timelines/fourth_alien.dtl",
 "second_alien": "res://Assets/Scenes/Timelines/second_alien.dtl",
 "seventh_alien": "res://Assets/Scenes/Timelines/seventh_alien.dtl",

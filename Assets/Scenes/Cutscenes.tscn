@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://dxgp5fpdk3c18"]
+
+[ext_resource type="Script" path="res://Assets/Scripts/Cutscenes.gd" id="1_kwk2q"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_kwk2q"]
+
+[node name="Cutscenes" type="Control" unique_id=2083796751]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_kwk2q")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2046537568]
+layout_mode = 0
+offset_right = 1151.0
+offset_bottom = 648.0
+texture = SubResource("PlaceholderTexture2D_kwk2q")
+expand_mode = 3
+
+[node name="Label" type="Label" parent="." unique_id=1512092960]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 507.0
+offset_right = 1013.0
+offset_bottom = 598.0
