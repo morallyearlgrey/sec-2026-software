@@ -1,6 +1,6 @@
 [background arg="res://Assets/Backgrounds/nightsky.png" fade="0.0"]
 join character center
-character: hi
+character: {Global.first_prompt}
 do DialogueController.dynamic_dialogue()
 character: {Global.dynamic_line}
 do DialogueController.dynamic_dialogue()

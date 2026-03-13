@@ -22,8 +22,8 @@ Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
 Map="*uid://bibagfu4vyltt"
-Aliens="*uid://owhk806xxj6f"
-cur_alien_idx="*uid://owhk806xxj6f"
+APIClient="*uid://bv8aueddwamck"
+PointCalculator="*uid://dot1ocsuktmq1"
 
 [dialogic]
 
@@ -32,8 +32,8 @@ directories/dch_directory={
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
-"first_alien": "res://Timelines/first_alien.dtl",
-"second_alien": "res://Timelines/second_alien.dtl"
+"Scripts/first_alien": "res://Assets/Scripts/first_alien.dtl",
+"first_alien": "res://Timelines/first_alien.dtl"
 }
 layout/style_directory={
 "": "res://Assets/Backgrounds/Alien1_Textbox.tres"
@@ -75,7 +75,11 @@ audio/channel_defaults={
 }
 }
 glossary/default_case_sensitive=true
-variables={}
+variables={
+"alien_image": "",
+"alien_name": "",
+"alien_response": ""
+}
 history/simple_history_enabled=false
 history/full_history_enabled=false
 history/visited_event_history_enabled=false

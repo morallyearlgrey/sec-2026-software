@@ -1,10 +1,14 @@
 extends Node
 var dynamic_line: String = "123"
 var player_input: String = ""
+var num_turn: int = 0;
 
 const BASE_URL = "http://localhost:8000"
 const PLAYER_ID = "mcdiggity"
-var sessions = {}
+
+var qa_session_id: String = "";
+var alien_session_id: String = "";
+
 
 # index, int
 # name, string
@@ -13,6 +17,7 @@ var sessions = {}
 # situation, string arr
 # dialogue_intro, string
 # liked_words, string-int dict
+# num_turns
 # banned_words, string-int dict
 # happiness_meter, float
 # src, string
