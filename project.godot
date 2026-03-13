@@ -18,12 +18,12 @@ config/icon="res://Assets/Characters/icon.svg"
 
 [autoload]
 
-Aliens="*uid://x4d5q2hm6ers"
-cur_alien_idx="*uid://x4d5q2hm6ers"
 Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
 Map="*uid://bibagfu4vyltt"
+Aliens="*uid://owhk806xxj6f"
+cur_alien_idx="*uid://owhk806xxj6f"
 
 [dialogic]
 
