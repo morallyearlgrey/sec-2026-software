@@ -44,10 +44,10 @@ directories/dtl_directory={
 "third_alien": "res://Assets/Scenes/Timelines/third_alien.dtl"
 }
 layout/style_directory={
-"": "res://Assets/Backgrounds/Alien1_Textbox.tres",
-"Alien1_Textbox": "res://Assets/Backgrounds/Alien1_Textbox.tres"
+"Alien1_Textbox": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres",
+"Alien8_Textbook": "res://Assets/Styles/Textbox Styles/Alien8_Textbook.tres"
 }
-layout/style_list=["res://Assets/Backgrounds/Alien1_Textbox.tres"]
+layout/style_list=["res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres", "res://Assets/Styles/Textbox Styles/Alien8_Textbook.tres"]
 layout/default_style="res://Assets/Backgrounds/Alien1_Textbox.tres"
 text/letter_speed=0.01
 text/initial_text_reveal_skippable=true
