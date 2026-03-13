@@ -42,3 +42,6 @@ Thumbs.db
 
 # AI server sessions database
 ai_server/sessions.db
+
+# Python dependencies
+_pycache_/

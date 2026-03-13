@@ -1,6 +1,8 @@
-[gd_scene format=3 uid="uid://bicf6mqy7kavd"]
+[gd_scene format=3 uid="uid://csfxjrkkofs3o"]
 
 [ext_resource type="Script" uid="uid://bhnxqxp6rnt8p" path="res://Assets/Scripts/ButtonController.gd" id="1_u8q4h"]
+[ext_resource type="Texture2D" uid="uid://dn4wcm00ep6a3" path="res://Assets/Backgrounds/Map.png" id="2_xtdxc"]
+[ext_resource type="Texture2D" uid="uid://dqwv2ce888my5" path="res://Assets/Icons/MapPointer.png" id="3_iy4he"]
 
 [node name="Control" type="Control" unique_id=170420671]
 layout_mode = 3
@@ -11,36 +13,55 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_u8q4h")
 
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1642514785]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = 92.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_xtdxc")
+expand_mode = 1
+
 [node name="Second_Button" type="Button" parent="." unique_id=423949889]
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.007
 anchor_bottom = 0.012
-offset_left = 393.0
-offset_top = 142.0
-offset_right = 497.936
-offset_bottom = 221.224
+offset_left = 633.0
+offset_top = 805.0
+offset_right = 737.936
+offset_bottom = 884.224
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [node name="First_Button" type="Button" parent="." unique_id=585005460]
 layout_mode = 0
-offset_left = 182.0
-offset_top = 142.0
-offset_right = 296.0
-offset_bottom = 238.0
+offset_left = 194.0
+offset_top = 41.0
+offset_right = 308.0
+offset_bottom = 137.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [node name="Third_Button" type="Button" parent="." unique_id=34725446]
 layout_mode = 0
-offset_left = 633.0
-offset_top = 139.0
-offset_right = 725.0
-offset_bottom = 235.0
+offset_left = 1407.0
+offset_top = 461.0
+offset_right = 1499.0
+offset_bottom = 557.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [node name="Fourth_Button" type="Button" parent="." unique_id=1811504938]
 layout_mode = 0
-offset_left = 843.0
-offset_top = 141.0
-offset_right = 935.0
-offset_bottom = 217.0
+offset_left = 954.0
+offset_top = 57.0
+offset_right = 1046.0
+offset_bottom = 133.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [node name="Fifth_Button" type="Button" parent="." unique_id=509004130]
 layout_mode = 0
@@ -48,27 +69,35 @@ offset_left = 198.0
 offset_top = 424.0
 offset_right = 276.0
 offset_bottom = 502.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [node name="Sixth_Button" type="Button" parent="." unique_id=1964274303]
 layout_mode = 0
-offset_left = 381.0
-offset_top = 406.0
-offset_right = 494.0
-offset_bottom = 506.0
+offset_left = 1624.0
+offset_top = 729.0
+offset_right = 1737.0
+offset_bottom = 829.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [node name="Seventh_Button" type="Button" parent="." unique_id=618556754]
 layout_mode = 0
-offset_left = 652.0
-offset_top = 402.0
-offset_right = 728.0
-offset_bottom = 480.0
+offset_left = 560.0
+offset_top = 423.0
+offset_right = 636.0
+offset_bottom = 501.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [node name="Eighth_Button" type="Button" parent="." unique_id=1409025664]
 layout_mode = 0
-offset_left = 885.0
-offset_top = 398.0
-offset_right = 986.0
-offset_bottom = 506.0
+offset_left = 1423.0
+offset_top = 37.0
+offset_right = 1524.0
+offset_bottom = 145.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
 
 [connection signal="pressed" from="Second_Button" to="." method="_on_second_button_pressed"]
 [connection signal="pressed" from="First_Button" to="." method="_on_first_button_pressed"]

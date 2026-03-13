@@ -8,6 +8,5 @@ func dynamic_dialogue() -> void:
 	]
 	Global.dynamic_line = lines[0]
 	
-	
 func static_dialogue():
 	Global.set_variable("dynamic_line", "Fresh alien fruit!")

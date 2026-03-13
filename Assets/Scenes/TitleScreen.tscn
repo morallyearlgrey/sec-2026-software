@@ -1,9 +1,14 @@
 [gd_scene format=3 uid="uid://b0mp0jb0qpudt"]
 
-[ext_resource type="Script" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
+[ext_resource type="Script" uid="uid://f5ij3k3c3jx2" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
 [ext_resource type="Texture2D" uid="uid://dqpjpnf1gpi0e" path="res://Assets/Backgrounds/TitleScreen.jpg" id="2_vu4bj"]
+[ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_7huei"]
 
-[sub_resource type="AnimatedTexture" id="AnimatedTexture_7huei"]
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vu4bj"]
+load_path = "res://.godot/imported/TitleScreen.jpg-9713e12cef3d7a9528af919cdb161bf1.ctex"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_a33en"]
+load_path = "res://.godot/imported/Logo.png-87956afb1a6b0ed68e25568d576a32f8.ctex"
 
 [node name="TitleScreen" type="Control" unique_id=346713926]
 layout_mode = 3
@@ -16,19 +21,51 @@ script = ExtResource("1_7huei")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1779973118]
 layout_mode = 0
-offset_right = 1156.0
-offset_bottom = 628.0
-texture = ExtResource("2_vu4bj")
-expand_mode = 5
-stretch_mode = 5
+offset_left = -18.0
+offset_top = -10.0
+offset_right = 1941.0
+offset_bottom = 1100.0
+texture = SubResource("CompressedTexture2D_vu4bj")
+expand_mode = 1
 
-[node name="StartButton" type="Button" parent="." unique_id=962919819]
+[node name="Logo" type="TextureRect" parent="." unique_id=475817563]
 layout_mode = 0
-offset_left = 415.0
-offset_top = 460.0
-offset_right = 667.0
-offset_bottom = 553.0
-text = "Start"
-icon = SubResource("AnimatedTexture_7huei")
+offset_left = 580.0
+offset_top = 102.0
+offset_right = 1340.0
+offset_bottom = 640.0
+texture = SubResource("CompressedTexture2D_a33en")
+expand_mode = 1
+
+[node name="StartButton" type="Button" parent="." unique_id=1781750439]
+custom_minimum_size = Vector2(500, 120)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 710.0
+offset_top = 741.0
+offset_right = -710.0
+offset_bottom = -219.0
+theme_override_fonts/font = ExtResource("2_7huei")
+theme_override_font_sizes/font_size = 48
+flat = true
+
+[node name="Label" type="Label" parent="StartButton" unique_id=1017881469]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0.30980393, 0.11372549, 0.39607844, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("2_7huei")
+theme_override_font_sizes/font_size = 64
+text = "Start Game"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]

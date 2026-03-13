@@ -21,6 +21,8 @@ Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
 Map="*uid://bibagfu4vyltt"
+Aliens="*uid://owhk806xxj6f"
+cur_alien_idx="*uid://owhk806xxj6f"
 
 [dialogic]
 
@@ -86,6 +88,11 @@ audio/channel_defaults={
 glossary/default_case_sensitive=true
 variables={}
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
 [editor]
 
 version_control/plugin_name="GitPlugin"
@@ -115,3 +122,4 @@ dialogic_default_action={
 
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
+environment/defaults/default_clear_color=Color(0.14901961, 0.19215687, 0.15686275, 1)

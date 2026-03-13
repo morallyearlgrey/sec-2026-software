@@ -19,19 +19,18 @@ def is_valid_len(input: str) -> bool:
         return False;
 
 # clean
-def clean(input: str) -> str:
-    # delete symbols, split up words
-    re.sub(r'[^a-zA-Z0-9\s]', ' ', input);
-    new_input = input.split(" ");
-    return new_input;
+# def clean(input: str) -> list:
+#     # delete symbols, split up words
+#     cleaned = re.sub(r'[^a-zA-Z0-9\s]', ' ', input)
+#     new_input = cleaned.split(" ");
+#     return new_input;
 
 # all
 def prechecks(input: str) -> dict: 
     input = input.strip();
     if(is_empty(input)==False):
-        new_input = clean(input);
-
-        if(is_valid_len(new_input)):
+        if(is_valid_len(input)):
+            # new_input = clean(input);
             return {"validity": True, "reason": "good to go"};
 
         else:
