@@ -1,9 +1,9 @@
 [background arg="res://Assets/Backgrounds/nightsky.png" fade="0.0"]
-join character center
-character: hi
+join alien_8 center
+alien_3: Hello! I'm Mr. Blue, I have some pretty good potions you can look at!
 do DialogueController.dynamic_dialogue()
-character: {Global.dynamic_line}
+alien_3: {Global.dynamic_line}
 do DialogueController.dynamic_dialogue()
-character: {Global.dynamic_line}
+alien_3: {Global.dynamic_line}
 do DialogueController.dynamic_dialogue()
-character: {Global.dynamic_line}
+alien_3: {Global.dynamic_line}
