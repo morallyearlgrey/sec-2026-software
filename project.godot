@@ -14,6 +14,10 @@ config/name="sec-2026-software"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Global="*uid://x4d5q2hm6ers"
+
 [editor]
 
 version_control/plugin_name="GitPlugin"
