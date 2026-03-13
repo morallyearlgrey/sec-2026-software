@@ -32,14 +32,18 @@ func take_turn() -> void:
 		Global.num_turn+=1;
 		# update the points ya
 		PointCalculator.calculate_points(qa_parsed, Global.cur_alien_idx);
-		var alien_msg = "{\"question\": \"%s\"}\n{\"answer\": \"%s\"}" % [Dialogic.VAR.get("alien_response"), player_text];
-		var qa_reply  = await APIClient.run_agent("qa_agent", Global.qa_session_id, qa_msg);
-		var qa_parsed = APIClient.parse_agent_json(qa_reply);
+		
+		var to_alien_msg = {"id": "", "alien": "", "message": ""};
+		
+		var alien_msg = "{\"alien_dialog\": \"%s\"}\n{\"turn_summary\": \"%s\"}" % [Dialogic.VAR.get("alien_response"), to_alien_msg];
+		var alien_reply  = await APIClient.run_agent("alien_agent", Global.alien_session_id, alien_msg);
+		var alien_parsed = APIClient.parse_agent_json(alien_reply);
 	
 	else:
 		Global.set_variable("dynamic_line", qa_parsed["reason"]);
 		take_turn();
 
+	
 # sorry peyton lol
 #func dynamic_dialogue() -> void:
 	#var lines = [
