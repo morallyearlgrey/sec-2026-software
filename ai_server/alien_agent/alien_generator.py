@@ -4,6 +4,7 @@ class Alien:
     
     def __init__(self):
         # self.__index = 
+        # self.__id = 
         self.__name = self.get_random_name()
         self.__mood = self.get_random_mood()
         self.__mbti = self.get_random_mbti()
@@ -13,7 +14,9 @@ class Alien:
         self.__banned_words = self.get_random_dislikes(self.__liked_words)
         # self.__happiness_meter = 
         # self.__src = 
-        # self.points = 
+        self.points = 12
+        self.__summaries = []
+        self.__turn = 0
         
         # print(self.get_prompt())
 
@@ -29,6 +32,15 @@ know is that I approached your booth."
 
     def get_points(self):
         return self.__points
+    
+    def get_summaries(self):
+        return self.__summaries
+    
+    def get_id(self):
+        return self.__id
+    
+    def get_turn(self):
+        return self.__turn
 
     def get_dict(self):        
         return {
@@ -36,7 +48,7 @@ know is that I approached your booth."
             self.__mood,
             self.__mbti,
             self.__situation,
-            self.__greeting,
+            self.__dialog_intro,
             self.__liked_words,
             self.__banned_words
         }
