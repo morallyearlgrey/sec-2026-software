@@ -14,9 +14,12 @@ config/name="sec-2026-software"
 run/main_scene="res://Assets/Scenes/TitleScreen.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://Assets/Characters/icon.svg"
+<<<<<<<HEADrun/main_scene="res://Assets/Scenes/TitleScreen.tscn"
 
 [autoload]
 
+Aliens="*uid://x4d5q2hm6ers"
+cur_alien_idx="*uid://x4d5q2hm6ers"
 Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
