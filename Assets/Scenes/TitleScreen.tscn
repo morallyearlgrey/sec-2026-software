@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cqo0lrb7a15pr"]
 
 [ext_resource type="Script" uid="uid://f5ij3k3c3jx2" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
-[ext_resource type="Texture2D" uid="uid://dqpjpnf1gpi0e" path="res://Assets/Backgrounds/TitleScreen.jpg" id="2_vu4bj"]
+[ext_resource type="Texture2D" uid="uid://ctgdmripk2eju" path="res://Assets/Backgrounds/TitleScreen.jpg" id="2_vu4bj"]
 
 [sub_resource type="AnimatedTexture" id="AnimatedTexture_7huei"]
 

@@ -28,6 +28,7 @@ cur_alien_idx="*uid://owhk806xxj6f"
 [dialogic]
 
 directories/dch_directory={
+"alien_one": "res://Assets/Characters/alien_one.dch",
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
@@ -35,10 +36,9 @@ directories/dtl_directory={
 "second_alien": "res://Timelines/second_alien.dtl"
 }
 layout/style_directory={
-"": "res://Assets/Backgrounds/Alien1_Textbox.tres",
-"Alien1_Textbox": "res://Assets/Backgrounds/Alien1_Textbox.tres"
+"": "res://Assets/Backgrounds/Alien1_Textbox.tres"
 }
-layout/style_list=["res://Assets/Backgrounds/Alien1_Textbox.tres"]
+layout/style_list=[]
 layout/default_style="res://Assets/Backgrounds/Alien1_Textbox.tres"
 text/letter_speed=0.01
 text/initial_text_reveal_skippable=true
@@ -76,6 +76,9 @@ audio/channel_defaults={
 }
 glossary/default_case_sensitive=true
 variables={}
+history/simple_history_enabled=false
+history/full_history_enabled=false
+history/visited_event_history_enabled=false
 
 [editor]
 
