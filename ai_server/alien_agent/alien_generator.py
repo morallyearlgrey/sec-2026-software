@@ -1,29 +1,63 @@
 import random
 
-def get_random_market_booth():    
-    rand = random.random(0, len(market_booths))
-    
-    return market_booths[rand]
-        
-def get_random_mbti():
-    rand = random.random(0, len(mbti))
-    
-    return mbti[rand]
-
-def get_random_mood():
-    rand = random.random(0, len(moods))
-    
-    return moods[rand]
+def get_prompt():
+    name = get_random_name()
+    mood = get_random_mood()
+    mbti = get_random_mbti()
+    situation = get_random_market_booth()
+    greeting = get_random_greeting
+    return f"You name is {get_random_name()}. You are an alien. Your\
+        mood is {get_random_mood()} and your an {get_random_mbti()}\
+        You work as a "
 
 def get_random_name():
     rand = random.random(0, len(alien_names))
     
     return alien_names[rand]
 
+
+def get_random_mood():
+    rand = random.random(0, len(moods))
+    
+    return moods[rand]
+        
+def get_random_mbti():
+    rand = random.random(0, len(mbti))
+    
+    return mbti[rand]
+
+def get_random_market_booth():    
+    rand = random.random(0, len(market_booths))
+    
+    return market_booths[rand]
+
 def get_random_greeting():
     rand = random.random(0, len(greetings))
     
     return greetings[rand]
+
+alien_names = [
+    "Krag-Vark", "Lumina", "X'ylar", "Glip-Glop", "Xenophon", "Sshirra",
+    "Grozznok", "Syllis", "Q-Tox", "Zorp", "Valerax", "Xis",
+    "Thrax", "Aeryn", "Z'neer", "Poofer", "Thal'Darim", "Sslith",
+    "Urk-Thul", "Oolala", "T'pau", "Blee-Bop", "Omnis", "Vess",
+    "Zarkon", "Veea", "K'rk", "Squish", "Pyrax", "Hiss'r",
+    "Krell", "Miri", "V'shaan", "Fizzle", "Solari", "Zzyzx",
+    "Vorg", "Lloyo", "B'nal", "Womp", "Aurelius", "Fshh",
+    "Blargen", "Esh-Na", "Xy'lo", "Zubble", "Krynn", "Sivv",
+    "Drakk", "Inara", "J'kar", "Blip", "Zandros", "Xasha",
+    "Ghor", "Nym", "Z'tah", "Noodle", "Xerxes", "Soren",
+    "Mokk", "Kaelie", "V'Rox", "Gribble", "Aethelgard", "Suss",
+    "Krax", "Yllos", "M'morp", "Zit", "Balthazarax", "Fwip",
+    "Grond", "Lili-Va", "Xo", "Boop", "Kranston", "Vsh",
+    "Zog", "Uuula", "Qun", "Splat", "Yar-Vax", "Zzz",
+    "Krellik", "O-Oh", "V'Larr", "Wobble", "Talonis", "Slish",
+    "Grak", "Iona", "K'Vok", "Pebble", "Ulduar", "Viss",
+    "Zyn", "Meepo", "X'Nilo", "Gloop", "Vandor", "Skeer",
+    "Rrax", "Kylo-Renish", "T'Mek", "Bleep", "Aethelred", "Xo'ru",
+    "Vorg-Ath", "Lili", "Z'Yn", "Mop", "Kael-Thas", "Sshh",
+    "Drog", "Yna", "Q'Ri", "Gloop-Gloop", "Thorn", "Vex"
+]
 
 market_booths = [
     ["Farmer", "Bananas"],
@@ -76,29 +110,6 @@ moods = [
     "Fidgety", "Suspicious", "Hesitant", "Stoic", "Gloomy",
     "Serious", "Brainy", "Focused", "Puzzled", "Contemplative",
     "Formal", "Strict", "Arrogant", "Confident", "Mischievous"
-]
-
-alien_names = [
-    "Krag-Vark", "Lumina", "X'ylar", "Glip-Glop", "Xenophon", "Sshirra",
-    "Grozznok", "Syllis", "Q-Tox", "Zorp", "Valerax", "Xis",
-    "Thrax", "Aeryn", "Z'neer", "Poofer", "Thal'Darim", "Sslith",
-    "Urk-Thul", "Oolala", "T'pau", "Blee-Bop", "Omnis", "Vess",
-    "Zarkon", "Veea", "K'rk", "Squish", "Pyrax", "Hiss'r",
-    "Krell", "Miri", "V'shaan", "Fizzle", "Solari", "Zzyzx",
-    "Vorg", "Lloyo", "B'nal", "Womp", "Aurelius", "Fshh",
-    "Blargen", "Esh-Na", "Xy'lo", "Zubble", "Krynn", "Sivv",
-    "Drakk", "Inara", "J'kar", "Blip", "Zandros", "Xasha",
-    "Ghor", "Nym", "Z'tah", "Noodle", "Xerxes", "Soren",
-    "Mokk", "Kaelie", "V'Rox", "Gribble", "Aethelgard", "Suss",
-    "Krax", "Yllos", "M'morp", "Zit", "Balthazarax", "Fwip",
-    "Grond", "Lili-Va", "Xo", "Boop", "Kranston", "Vsh",
-    "Zog", "Uuula", "Qun", "Splat", "Yar-Vax", "Zzz",
-    "Krellik", "O-Oh", "V'Larr", "Wobble", "Talonis", "Slish",
-    "Grak", "Iona", "K'Vok", "Pebble", "Ulduar", "Viss",
-    "Zyn", "Meepo", "X'Nilo", "Gloop", "Vandor", "Skeer",
-    "Rrax", "Kylo-Renish", "T'Mek", "Bleep", "Aethelred", "Xo'ru",
-    "Vorg-Ath", "Lili", "Z'Yn", "Mop", "Kael-Thas", "Sshh",
-    "Drog", "Yna", "Q'Ri", "Gloop-Gloop", "Thorn", "Vex"
 ]
 
 greetings = [
