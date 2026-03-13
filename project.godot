@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
+Map="*uid://bibagfu4vyltt"
 
 [dialogic]
 
@@ -27,7 +28,8 @@ directories/dch_directory={
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
-"alien_2": "res://Timelines/alien_1.dtl"
+"first_alien": "res://Timelines/first_alien.dtl",
+"second_alien": "res://Timelines/second_alien.dtl"
 }
 layout/style_directory={
 "": "res://Assets/Backgrounds/Alien1_Textbox.tres",
