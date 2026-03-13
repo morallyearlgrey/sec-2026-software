@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="sec-2026-software"
-run/main_scene="uid://b3cslavn1qitj"
+run/main_scene="res://Assets/Scenes/TitleScreen.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
-config/icon="res://icon.svg"
+config/icon="res://Assets/Characters/icon.svg"
 
 [autoload]
 
