@@ -1,46 +1,44 @@
 import random
 
-class AlienGenerator:
+class Alien:
     
     def __init__(self):
-        print(self.get_prompt())
-
-    def get_prompt(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        liked_words = self.get_random_likes()
-        banned_words = self.get_random_dislikes(liked_words)
+        # self.__index = 
+        self.__name = self.get_random_name()
+        self.__mood = self.get_random_mood()
+        self.__mbti = self.get_random_mbti()
+        self.__situation = self.get_random_market_booth()
+        self.__dialog_intro = self.get_random_greeting()
+        self.__liked_words = self.get_random_likes()
+        self.__banned_words = self.get_random_dislikes(self.__liked_words)
+        # self.__happiness_meter = 
+        # self.__src = 
+        # self.points = 
         
-        return f"You name is {name}. You are an alien. Your mood is {mood} and \
-you're an {mbti}. You work as a {situation[0]}, and you are situated in a \
-booth at a market where you are selling {situation[1]}. You enjoy \
-{liked_words[0]}, {liked_words[1]}, and {liked_words[2]}. You hate \
-{banned_words[0]}, {banned_words[1]}, and {banned_words[2]}. You have a \
-maximum dialog of 5 responses before you want to end the conversation. Your \
-greeting is \"{greeting}\". I am looking to invite you to the grand opening \
-for my restaurant, but you don't know that yet. All you know is that I \
-approached your booth."
+        # print(self.get_prompt())
 
-    def get_dict(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        liked_words = self.get_random_likes()
-        banned_words = self.get_random_dislikes(liked_words)
-        
+    def get_prompt(self):        
+        return f"You name is {self.__name}. You are an alien. Your mood is {self.__mood} and \
+you're an {self.__mbti}. You work as a {self.__situation[0]}, and you are situated in a \
+booth at a market where you are selling {self.__situation[1]}. You enjoy {self.__likes[0]}, \
+{self.__liked_words[0]}, and {self.__liked_words[1]}. You hate {self.__banned_words[0]}, {self.__banned_words[1]}, and \
+{self.__banned_words[2]}. You have a maximum dialog of 5 responses before you want to end \
+the conversation. Your greeting is \"{self.__dialog_intro}\". I am looking to invite you \
+to the grand opening for my restaurant, but you don't know that yet. All you \
+know is that I approached your booth."
+
+    def get_points(self):
+        return self.__points
+
+    def get_dict(self):        
         return {
-            name,
-            mood,
-            mbti,
-            situation,
-            greeting,
-            liked_words,
-            banned_words
+            self.__name,
+            self.__mood,
+            self.__mbti,
+            self.__situation,
+            self.__greeting,
+            self.__liked_words,
+            self.__banned_words
         }
 
     def get_random_name(self):
