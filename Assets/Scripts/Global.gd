@@ -19,6 +19,7 @@ var sessions = {}
 # src, string
 # points, int
 const Aliens = {
+	
 }
 
 var cur_alien_idx = 0;
