@@ -11,7 +11,7 @@ root_agent = Agent(
     
     First, call the prechecks tool. You will receive a dict in the form:
     {"validity": True/False, "reason": ""}
-    If the validity is False, skip the rest of these instructions and return the following dict and summarize the reason why the response failed and summarize the user response in one sentence and place it in 'summary':
+    If the validity is False, skip the rest of these instructions and return the following dict and summarize the reason why the response failed to the user and summarize the user response in one sentence and place it in 'summary':
     {"validity": False, "reason": "", "summary": ""}
 
     Otherwise, if the validity is True, follow the rest of the instructions. 
@@ -26,7 +26,7 @@ root_agent = Agent(
     If all four criteria are true, with no other elaboration, return the following dict and summarize the user response in one sentence and place it in 'summary':
     {"validity": True, "reason": "is a valid response", "summary": ""}
 
-    If at least one of the four criteria is false, return the following dict and summarize the reason why the response failed and summarize the user response in one sentence and place it in 'summary':
+    If at least one of the four criteria is false, return the following dict and summarize the reason why the response failed to the user and summarize the user response in one sentence and place it in 'summary':
     {"validity": False, "reason": "", "summary": ""}
 
     """,
