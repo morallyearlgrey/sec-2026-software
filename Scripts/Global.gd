@@ -14,6 +14,12 @@ extends Node
 const Aliens = {
 }
 
+func get_alien(alien_id: String) -> Dictionary:
+	return alien_state.get(alien_id, {})
+
+func add_points(alien_id: String, amount: int):
+	if alien_state.has(alien_id):
+		alien_state[alien_id]["points"] += amount
 
 	
 
