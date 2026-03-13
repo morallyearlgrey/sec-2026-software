@@ -32,7 +32,9 @@ func take_turn() -> void:
 		Global.num_turn+=1;
 		# update the points ya
 		PointCalculator.calculate_points(qa_parsed, Global.cur_alien_idx);
-		var qa_
+		var alien_msg = "{\"question\": \"%s\"}\n{\"answer\": \"%s\"}" % [Dialogic.VAR.get("alien_response"), player_text];
+		var qa_reply  = await APIClient.run_agent("qa_agent", Global.qa_session_id, qa_msg);
+		var qa_parsed = APIClient.parse_agent_json(qa_reply);
 	
 	else:
 		Global.set_variable("dynamic_line", qa_parsed["reason"]);
