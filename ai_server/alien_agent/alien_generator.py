@@ -49,6 +49,8 @@ class AlienGenerator:
             "likes":     likes,
             "dislikes":  dislikes,
             "greeting":  greeting,
+            "points": 0,
+            "src": "",
         }
 
     def get_random_name(self):
@@ -64,12 +66,37 @@ class AlienGenerator:
         return random.choice(self.market_booths)
 
     def get_random_likes(self):
-        return random.sample(self.likes, 3)
+        likes = []
+        
+        for i in range(3):
+            rand = random.randint(0, len(self.likes) - 1)
+            
+            while self.likes[rand] in likes:
+                rand = random.randint(0, len(self.likes) - 1)
+                
+            likes.append({
+                "like": self.likes[rand],
+                "weight": i * 2
+            })
+            
+        return likes
 
     def get_random_dislikes(self, likes):
-        pool = [x for x in self.likes if x not in likes]
-        return random.sample(pool, min(3, len(pool)))
-    
+        dislikes = []
+        
+        for i in range(3):
+            rand = random.randint(0, len(self.likes) - 1)
+            
+            while self.likes[rand] in likes or self.likes[rand] in dislikes:
+                rand = random.randint(0, len(self.likes) - 1)
+                
+            likes.append({
+                "dislike": self.likes[rand],
+                "weight": i * -2
+            })
+            
+        return dislikes
+        
     def get_random_greeting(self):
         greeting = random.choice(self.greetings)
         f"[You are now talking to {self.name}. After doing some research, you "
