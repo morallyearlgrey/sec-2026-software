@@ -7,147 +7,119 @@ _DIR = os.path.dirname(os.path.abspath(__file__))
 if _DIR not in sys.path:
     sys.path.insert(0, _DIR)
 
-
-class AlienGenerator:
+class Alien:
 
     def __init__(self):
-        pass  # removed auto-print; server calls methods directly
+        # ── Random Identity Generation ────────────────────────────────────────
+        self.__name = self.get_random_name()
+        self.__mood = self.get_random_mood()
+        self.__mbti = self.get_random_mbti()
+        self.__situation = self.get_random_market_booth()
+        self.__greeting = self.get_random_greeting()
+        
+        # ── Fixed List Logic ──────────────────────────────────────────────────
+        self.__likes = self.get_random_likes()
+        self.__dislikes = self.get_random_dislikes(self.__likes)
+
+        # ── AI & Game State ───────────────────────────────────────────────────
+        self.adk_session = None  # This stores the Runner from agent.py
+        self.__turn = 0
+        self.__summaries = []
+
+    # ── AI Session Methods ────────────────────────────────────────────────────
+    
+    def set_session(self, runner):
+        """Called by agent.py to link the Gemini Runner to this alien instance."""
+        self.adk_session = runner
 
     def get_prompt(self):
-        name      = self.get_random_name()
-        mood      = self.get_random_mood()
-        mbti      = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting  = self.get_random_greeting()
-        likes     = self.get_random_likes()
-        dislikes  = self.get_random_dislikes(likes)
-
+        """Generates the system instruction for Gemini based on this alien's traits."""
         return (
-            f"You name is {name}. You are an alien. Your mood is {mood} and "
-            f"you're an {mbti}. You work as a {situation[0]}, and you are situated in a "
-            f"booth at a market where you are selling {situation[1]}. You enjoy {likes[0]}, "
-            f"{likes[1]}, and {likes[2]}. You hate {dislikes[0]}, {dislikes[1]}, and "
-            f"{dislikes[2]}. You have a maximum dialog of 5 responses before you want to end "
-            f"the conversation. Your greeting is \"{greeting}\". I am looking to invite you "
+            f"You name is {self.__name}. You are an alien. Your mood is {self.__mood} and "
+            f"you're an {self.__mbti}. You work as a {self.__situation[0]}, and you are situated in a "
+            f"booth at a market where you are selling {self.__situation[1]}. You enjoy {self.__likes[0]}, "
+            f"{self.__likes[1]}, and {self.__likes[2]}. You hate {self.__dislikes[0]}, {self.__dislikes[1]}, and "
+            f"{self.__dislikes[2]}. You have a maximum dialog of 5 responses before you want to end "
+            f"the conversation. Your greeting is \"{self.__greeting}\". I am looking to invite you "
             f"to the grand opening for my restaurant, but you don't know that yet. All you "
             f"know is that I approached your booth."
         )
 
+    # ── Game Logic Helpers ────────────────────────────────────────────────────
+
+    def get_turn(self) -> int:
+        return self.__turn
+
+    def increment_turn(self):
+        self.__turn += 1
+
+    def add_summary(self, summary_text: str):
+        self.__summaries.append(summary_text)
+
+    def get_greeting(self) -> str:
+        return self.__greeting
+
     def get_dict(self):
-        name      = self.get_random_name()
-        mood      = self.get_random_mood()
-        mbti      = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting  = self.get_random_greeting()
-        likes     = self.get_random_likes()
-        dislikes  = self.get_random_dislikes(likes)
-
+        """Returns a dictionary for the Godot frontend to read."""
         return {
-            "name":      name,
-            "mood":      mood,
-            "mbti":      mbti,
-            "situation": situation,
-            "greeting":  greeting,
-            "likes":     likes,
-            "dislikes":  dislikes,
+            "name":      self.__name,
+            "mood":      self.__mood,
+            "mbti":      self.__mbti,
+            "situation": self.__situation,
+            "greeting":  self.__greeting,
+            "likes":     self.__likes,
+            "dislikes":  self.__dislikes,
+            "turn":      self.__turn
         }
-
+        
+    # ── Randomization Logic ───────────────────────────────────────────────────
+        
     def get_random_name(self):
         return random.choice(self.alien_names)
 
     def get_random_mood(self):
         return random.choice(self.moods)
-
+            
     def get_random_mbti(self):
-        return random.choice(self.mbti)
+        return random.choice(self.mbti_types)
 
-    def get_random_market_booth(self):
+    def get_random_market_booth(self):    
         return random.choice(self.market_booths)
 
     def get_random_greeting(self):
         return random.choice(self.greetings)
 
     def get_random_likes(self):
-        return random.sample(self.likes, 3)
+        # random.sample is safer—it picks 3 unique items automatically
+        return random.sample(self.master_likes_list, 3)
+    
+    def get_random_dislikes(self, current_likes):
+        # Ensure we don't dislike something we already like
+        available = [item for item in self.master_likes_list if item not in current_likes]
+        return random.sample(available, 3)
 
-    def get_random_dislikes(self, likes):
-        pool = [x for x in self.likes if x not in likes]
-        return random.sample(pool, min(3, len(pool)))
+    # ── Data Arrays ───────────────────────────────────────────────────────────
 
     alien_names = [
         "Krag-Vark", "Lumina", "X'ylar", "Glip-Glop", "Xenophon", "Sshirra",
-        "Grozznok", "Syllis", "Q-Tox", "Zorp", "Valerax", "Xis",
-        "Thrax", "Aeryn", "Z'neer", "Poofer", "Thal'Darim", "Sslith",
-        "Urk-Thul", "Oolala", "T'pau", "Blee-Bop", "Omnis", "Vess",
-        "Zarkon", "Veea", "K'rk", "Squish", "Pyrax", "Hiss'r",
-        "Krell", "Miri", "V'shaan", "Fizzle", "Solari", "Zzyzx",
-        "Vorg", "Lloyo", "B'nal", "Womp", "Aurelius", "Fshh",
-        "Blargen", "Esh-Na", "Xy'lo", "Zubble", "Krynn", "Sivv",
-        "Drakk", "Inara", "J'kar", "Blip", "Zandros", "Xasha",
-        "Ghor", "Nym", "Z'tah", "Noodle", "Xerxes", "Soren",
-        "Mokk", "Kaelie", "V'Rox", "Gribble", "Aethelgard", "Suss",
-        "Krax", "Yllos", "M'morp", "Zit", "Balthazarax", "Fwip",
-        "Grond", "Lili-Va", "Xo", "Boop", "Kranston", "Vsh",
-        "Zog", "Uuula", "Qun", "Splat", "Yar-Vax", "Zzz",
-        "Krellik", "O-Oh", "V'Larr", "Wobble", "Talonis", "Slish",
-        "Grak", "Iona", "K'Vok", "Pebble", "Ulduar", "Viss",
-        "Zyn", "Meepo", "X'Nilo", "Gloop", "Vandor", "Skeer",
-        "Rrax", "Kylo-Renish", "T'Mek", "Bleep", "Aethelred", "Xo'ru",
-        "Vorg-Ath", "Lili", "Z'Yn", "Mop", "Kael-Thas", "Sshh",
-        "Drog", "Yna", "Q'Ri", "Gloop-Gloop", "Thorn", "Vex"
+        "Grozznok", "Syllis", "Q-Tox", "Zorp", "Valerax", "Xis", "Thrax", "Vex"
     ]
 
     market_booths = [
-        ["Farmer", "Bananas"],
-        ["Beekeeper", "Wildflower Honey"],
-        ["Baker", "Sourdough Bread"],
-        ["Blacksmith", "Hand-forged Skillets"],
-        ["Florist", "Sunflowers"],
-        ["Potter", "Ceramic Mugs"],
-        ["Carpenter", "Cedar Birdhouses"],
-        ["Herbalist", "Dried Lavender"],
-        ["Fisherman", "Smoked Salmon"],
-        ["Cheesemaker", "Aged Cheddar"],
-        ["Orchardist", "Cider Donuts"],
-        ["Chocolatier", "Dark Chocolate Truffles"],
-        ["Vintner", "Rose Wine"],
-        ["Weaver", "Wool Blankets"],
-        ["Butcher", "Grass-fed Jerky"],
-        ["Soapmaker", "Eucalyptus Soap"],
-        ["Gardener", "Heirloom Tomato Seeds"],
-        ["Roaster", "Whole Bean Coffee"],
-        ["Candlemaker", "Soy Wax Candles"],
-        ["Calligrapher", "Hand-painted Cards"],
-        ["Miller", "Stone-ground Grits"],
-        ["Forager", "Chanterelle Mushrooms"],
-        ["Sculptor", "Garden Gnomes"],
-        ["Leatherworker", "Handmade Belts"],
-        ["Linguist", "Rare Poetry Books"],
-        ["Astrologer", "Star Charts"],
-        ["Tea Sommelier", "Loose Leaf Oolong"],
-        ["Jeweler", "Sea Glass Necklaces"],
-        ["Cooper", "Oak Barrels"],
-        ["Cartographer", "Vintage-style Maps"]
+        ["Farmer", "Bananas"], ["Beekeeper", "Wildflower Honey"],
+        ["Baker", "Sourdough Bread"], ["Blacksmith", "Hand-forged Skillets"],
+        ["Florist", "Sunflowers"], ["Potter", "Ceramic Mugs"]
     ]
 
-    mbti = [
+    mbti_types = [
         "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj",
         "esfp", "isfp", "entj", "intj", "enfp", "infp", "estj", "istj"
     ]
 
     moods = [
-        "Overexcited", "Hyper", "Frantic", "Anxious", "Restless",
-        "Jittery", "Eager", "Rowdy", "Aggressive", "Panicked",
-        "Chill", "Sleepy", "Lazy", "Melancholic", "Serene",
-        "Dull", "Dreamy", "Lethargic", "Stoned", "Zoned-out",
-        "Impatient", "Grumpy", "Cranky", "Bitter", "Sullen",
-        "Bossy", "Stubborn", "Sarcastic", "Irritable", "Defiant",
-        "Bubbly", "Cheerful", "Gentle", "Polite", "Curious",
-        "Friendly", "Giddy", "Awestruck", "Playful", "Kind",
-        "Shy", "Timid", "Awkward", "Nervous", "Quiet",
-        "Fidgety", "Suspicious", "Hesitant", "Stoic", "Gloomy",
-        "Serious", "Brainy", "Focused", "Puzzled", "Contemplative",
-        "Formal", "Strict", "Arrogant", "Confident", "Mischievous"
+        "Overexcited", "Hyper", "Frantic", "Anxious", "Chill", "Sleepy", 
+        "Impatient", "Grumpy", "Bubbly", "Cheerful", "Shy", "Timid", 
+        "Serious", "Brainy", "Formal", "Strict", "Mischievous"
     ]
 
     greetings = [
@@ -156,72 +128,15 @@ class AlienGenerator:
         "Step closer, traveler, see what I've found.",
         "Are you buying, or just blocking the light?",
         "Greetings! Have you ever seen anything like this?",
-        "You look like someone with a discerning eye.",
-        "Move fast, I don't have all cycles to wait.",
-        "Ho there! Care to trade?",
-        "I haven't seen your species around here lately.",
-        "A new face! Welcome, welcome.",
-        "Stop! You won't find prices like these elsewhere.",
-        "Looking for something special, or just wandering?",
         "Salutations, friend. What brings you to my stall?",
-        "Careful where you step, and look with your eyes, not your claws.",
-        "Interested in a bargain?",
-        "Stay a moment! My goods are fresher than they look.",
-        "I don't recognize your scent... are you from the inner rim?",
-        "I hope you brought plenty of credits.",
-        "Peace be with you. See anything you like?",
-        "You there! You look like you need what I'm selling.",
-        "The stars have brought you to the right place.",
-        "I'm not in the mood for haggling today, just so you know.",
-        "Come, look! Even a glimpse is free.",
-        "May your journey be long, but your stop here be profitable.",
-        "Don't just stare, make an offer!",
-        "Ah, a customer at last.",
-        "Do you seek knowledge, or just shiny things?",
-        "Halt! You must see these before you pass.",
-        "Is that a smile or a threat? Either way, welcome!",
         "Blessings upon your hive. What can I do for you?"
     ]
 
-    likes = [
-        "culinary arts",
-        "the game zorx",
-        "rhythmic gymnastics",
-        "street food",
-        "architectural ruins",
-        "maritime navigation",
-        "experimental jazz",
-        "speculative fiction",
-        "terrestrial botany",
-        "competitive sports",
-        "abstract painting",
-        "beekeeping",
-        "meteorological phenomena",
-        "haute couture",
-        "amusement parks",
-        "folk mythology",
-        "mechanical watches",
-        "oceanography",
-        "cinematography",
-        "analog photography",
-        "urban exploration",
-        "board game marathons",
-        "heavy metal subcultures",
-        "wildlife conservation",
-        "the concept of nostalgia",
-        "stand-up comedy",
-        "bioluminescence",
-        "symphonic orchestras",
-        "bazaar shopping",
-        "geothermal springs",
-        "amateur astronomy",
-        "holiday traditions",
-        "landscape gardening",
-        "the velvet industry",
-        "fermentation science",
-        "sculpture galleries",
-        "ancient languages",
-        "aviation history",
-        "beach culture",
-        "the zorxian world championships"
+    master_likes_list = [
+        "culinary arts", "the game zorx", "rhythmic gymnastics", "street food",
+        "architectural ruins", "maritime navigation", "experimental jazz",
+        "speculative fiction", "terrestrial botany", "competitive sports",
+        "abstract painting", "beekeeping", "meteorological phenomena",
+        "haute couture", "amusement parks", "folk mythology",
+        "mechanical watches", "oceanography", "cinematography"
     ]
