@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://f5ij3k3c3jx2" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
 [ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_7huei"]
 [ext_resource type="Texture2D" uid="uid://ds03nv8e7phmu" path="res://Assets/Backgrounds/space background.png" id="2_a33en"]
+[ext_resource type="Texture2D" uid="uid://dw6lgyjwps0hq" path="res://Assets/Backgrounds/button.png" id="3_qnvjd"]
 [ext_resource type="Texture2D" uid="uid://ckgc52qmo6l35" path="res://Assets/Backgrounds/title1.png" id="4_qnvjd"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_a33en"]
@@ -34,25 +35,34 @@ offset_bottom = 640.0
 texture = SubResource("CompressedTexture2D_a33en")
 expand_mode = 1
 
+[node name="Button" type="Sprite2D" parent="." unique_id=1922470026]
+position = Vector2(945.12506, 912.75006)
+scale = Vector2(0.36474612, 0.36474615)
+texture = ExtResource("3_qnvjd")
+
 [node name="StartButton" type="Button" parent="." unique_id=1781750439]
 custom_minimum_size = Vector2(500, 120)
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 710.0
-offset_top = 741.0
-offset_right = -710.0
-offset_bottom = -219.0
+offset_left = 710.1251
+offset_top = 804.7501
+offset_right = -709.8749
+offset_bottom = -155.24988
 theme_override_fonts/font = ExtResource("2_7huei")
 theme_override_font_sizes/font_size = 48
 flat = true
 
 [node name="Label" type="Label" parent="StartButton" unique_id=1017881469]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = -1
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 1.6730001
+offset_left = 43.0
+offset_top = 61.0
+offset_right = -72.0
+offset_bottom = -60.76001
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_shadow_color = Color(0.30980393, 0.11372549, 0.39607844, 1)
@@ -66,7 +76,8 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Title1" type="Sprite2D" parent="." unique_id=809488803]
-position = Vector2(963, 481)
+position = Vector2(947.99994, 507)
+scale = Vector2(1.4293619, 1.5576172)
 texture = ExtResource("4_qnvjd")
 
 [connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
