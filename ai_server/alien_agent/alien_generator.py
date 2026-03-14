@@ -4,7 +4,7 @@ class Alien:
     
     def __init__(self):
         # self.__index = 
-        self.__session = ""
+        self.adk_session = ""
         self.__name = self.get_random_name()
         self.__mood = self.get_random_mood()
         self.__mbti = self.get_random_mbti()
@@ -55,7 +55,7 @@ know is that I approached your booth."
         }
 
     def set_session(self, session):
-        self.session = session
+        self.adk_session = session
 
     def add_summary(self, summary: str):
         self.__summaries.append(summary)
