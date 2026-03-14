@@ -39,7 +39,8 @@ directories/dch_directory={
 directories/dtl_directory={
 "Timelines/first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
 "first_alien": "res://Assets/Scripts/first_alien.dtl",
-"first_timeline": "res://first_timeline.dtl"
+"first_timeline": "res://first_timeline.dtl",
+"tutorial_alien": "res://Assets/Scenes/Timelines/tutorial_alien.dtl"
 }
 layout/style_directory={
 "Alien1_Textbox": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres"

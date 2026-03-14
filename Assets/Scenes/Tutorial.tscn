@@ -1,10 +1,8 @@
 [gd_scene format=3 uid="uid://cr03ru17w03ci"]
 
 [ext_resource type="Script" uid="uid://de51i1dfdljo7" path="res://Assets/Scripts/Tutorial.gd" id="1_qre6h"]
-
-[ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_qre6h"]
+[ext_resource type="FontFile" uid="uid://dlcjiu0kq38lx" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_qre6h"]
 [ext_resource type="Texture2D" uid="uid://ds03nv8e7phmu" path="res://Assets/Backgrounds/space background.png" id="2_tfvjl"]
-
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w8748"]
 bg_color = Color(0.5908385, 0.5248884, 0.95838016, 1)

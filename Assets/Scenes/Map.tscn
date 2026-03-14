@@ -28,10 +28,10 @@ expand_mode = 1
 
 [node name="First_Button" type="Button" parent="." unique_id=585005460]
 layout_mode = 0
-offset_left = 1368.0
-offset_top = 627.0
-offset_right = 1488.0
-offset_bottom = 727.0
+offset_left = 1137.0
+offset_top = 758.0
+offset_right = 1257.0
+offset_bottom = 858.0
 theme_override_styles/normal = ExtResource("4_wdgfw")
 theme_override_styles/pressed = ExtResource("4_wdgfw")
 theme_override_styles/hover = ExtResource("4_wdgfw")
@@ -48,10 +48,10 @@ autoplay = true
 
 [node name="Second_Button" type="Button" parent="." unique_id=1749807383]
 layout_mode = 0
-offset_left = 550.0
-offset_top = 604.0
-offset_right = 670.0
-offset_bottom = 704.0
+offset_left = 536.0
+offset_top = 430.0
+offset_right = 656.0
+offset_bottom = 530.0
 pivot_offset = Vector2(58, 58)
 theme_override_styles/normal = ExtResource("4_wdgfw")
 theme_override_styles/pressed = ExtResource("4_wdgfw")
@@ -64,10 +64,10 @@ expand_icon = true
 
 [node name="Third_Button" type="Button" parent="." unique_id=1479028713]
 layout_mode = 0
-offset_left = 1196.0
-offset_top = 908.0
-offset_right = 1316.0
-offset_bottom = 1008.0
+offset_left = 1577.0
+offset_top = 744.0
+offset_right = 1697.0
+offset_bottom = 844.0
 pivot_offset = Vector2(58, 58)
 theme_override_styles/normal = ExtResource("4_wdgfw")
 theme_override_styles/pressed = ExtResource("4_wdgfw")
@@ -80,10 +80,10 @@ expand_icon = true
 
 [node name="Fourth_Button" type="Button" parent="." unique_id=2139432720]
 layout_mode = 0
-offset_left = 1173.0
-offset_top = 408.0
-offset_right = 1293.0
-offset_bottom = 508.0
+offset_left = 1127.0
+offset_top = 271.0
+offset_right = 1247.0
+offset_bottom = 371.0
 theme_override_styles/normal = ExtResource("4_wdgfw")
 theme_override_styles/pressed = ExtResource("4_wdgfw")
 theme_override_styles/hover = ExtResource("4_wdgfw")
@@ -95,10 +95,10 @@ expand_icon = true
 
 [node name="Fifth_Button" type="Button" parent="." unique_id=1047478895]
 layout_mode = 0
-offset_left = 1288.0
-offset_top = 183.0
-offset_right = 1408.0
-offset_bottom = 283.0
+offset_left = 1431.0
+offset_top = 60.0
+offset_right = 1551.0
+offset_bottom = 160.0
 pivot_offset = Vector2(58, 58)
 theme_override_styles/normal = ExtResource("4_wdgfw")
 theme_override_styles/pressed = ExtResource("4_wdgfw")
@@ -111,10 +111,10 @@ expand_icon = true
 
 [node name="Sixth_Button" type="Button" parent="." unique_id=1179080680]
 layout_mode = 0
-offset_left = 566.0
-offset_top = 942.0
-offset_right = 686.0
-offset_bottom = 1042.0
+offset_left = 548.0
+offset_top = 48.0
+offset_right = 668.0
+offset_bottom = 148.0
 pivot_offset = Vector2(58, 58)
 theme_override_styles/normal = ExtResource("4_wdgfw")
 theme_override_styles/pressed = ExtResource("4_wdgfw")
@@ -126,3 +126,8 @@ icon_alignment = 1
 expand_icon = true
 
 [connection signal="pressed" from="First_Button" to="." method="_on_first_button_pressed"]
+[connection signal="pressed" from="Second_Button" to="." method="_on_second_button_pressed"]
+[connection signal="pressed" from="Third_Button" to="." method="_on_third_button_pressed"]
+[connection signal="pressed" from="Fourth_Button" to="." method="_on_fourth_button_pressed"]
+[connection signal="pressed" from="Fifth_Button" to="." method="_on_fifth_button_pressed"]
+[connection signal="pressed" from="Sixth_Button" to="." method="_on_sixth_button_pressed"]

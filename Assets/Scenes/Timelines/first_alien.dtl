@@ -1,4 +1,4 @@
-[background arg="res://Assets/Backgrounds/nightsky.png" fade="0.5"]
+[background arg="res://Assets/Backgrounds/background.png" fade="0.5"]
 join alien_1 center
 
 alien_1: Hello!
@@ -7,5 +7,5 @@ if {turn_valid} == false:
     alien_1: What are you talking about?
     alien_1: Please leave.
 else:
-    alien_1: {alien_response}
+    alien_1: {dynamic_line}
     alien_1: Maybe I'll stop by.
