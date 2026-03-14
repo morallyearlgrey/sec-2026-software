@@ -1,10 +1,245 @@
 [gd_scene format=3 uid="uid://i17sy65pt8j1"]
 
 [ext_resource type="Script" uid="uid://d0mn6lbiih7qj" path="res://Assets/Scripts/Exit.gd" id="1_ig6vw"]
+[ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_ck83b"]
+[ext_resource type="Texture2D" uid="uid://dm4bh57c5bjo1" path="res://Assets/Icons/Window.png" id="2_hntrw"]
+[ext_resource type="Texture2D" uid="uid://d6xai0uapep5" path="res://Assets/Icons/Floor.png" id="3_pu0ia"]
+[ext_resource type="Texture2D" uid="uid://bgtiughy4886r" path="res://Assets/Icons/Banner.png" id="3_vugf1"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_r3g37"]
+[sub_resource type="CanvasTexture" id="CanvasTexture_pu0ia"]
 
-[sub_resource type="AnimatedTexture" id="AnimatedTexture_d6mwh"]
+[sub_resource type="Animation" id="Animation_hntrw"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Frame/RestartButton/RestartLabel:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IntroLabelTop:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.72156864, 0.72156864, 0.72156864, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IntroLabelTop:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Frame/RestartButton/RestartLabel:self_modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.72156864, 0.72156864, 0.72156864, 1)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IntroLabelMid:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IntroLabelMid:self_modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.72156864, 0.72156864, 0.72156864, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IntroLabelBottom:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IntroLabelBottom:self_modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.72156864, 0.72156864, 0.72156864, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_m8udp"]
+resource_name = "ending"
+length = 15.0
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(1.6),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"populate_characters"
+}]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("BlackScreen:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 7.3333335, 8.766666),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 1), Color(0, 0, 0, 1), Color(1, 1, 1, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Frame/RestartButton/RestartLabel:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IntroLabelTop:self_modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.8666667, 6.733333, 7.0666666),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.72156864, 0.72156864, 0.72156864, 0), Color(0.72156864, 0.72156864, 0.72156864, 1), Color(0.72135246, 0.72135246, 0.72135246, 1), Color(0.72156864, 0.72156864, 0.72156864, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = false
+tracks/4/path = NodePath("IntroLabelTop:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 7.0333333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Frame/RestartButton/RestartLabel:self_modulate")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 12.1, 13.066667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(0.72135246, 0.72135246, 0.72135246, 0), Color(0.72135246, 0.72135246, 0.72135246, 0), Color(0.72135246, 0.72135246, 0.72135246, 1)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = false
+tracks/6/path = NodePath("IntroLabelMid:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 7.0333333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IntroLabelMid:self_modulate")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 2.6333334, 3.5333333, 6.733333, 7.0666666),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.72156864, 0.72156864, 0.72156864, 0), Color(0.72156864, 0.72156864, 0.72156864, 0), Color(0.72135246, 0.72135246, 0.72135246, 1), Color(0.72135246, 0.72135246, 0.72135246, 0.95800006), Color(0.72156864, 0.72156864, 0.72156864, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = false
+tracks/8/path = NodePath("IntroLabelBottom:visible")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 7.0333333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IntroLabelBottom:self_modulate")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 5.1, 6.0333333, 6.766667, 7.1),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.72156864, 0.72156864, 0.72156864, 0), Color(0.72156864, 0.72156864, 0.72156864, 0), Color(0.72135246, 0.72135246, 0.72135246, 1), Color(0.72135246, 0.72135246, 0.72135246, 0.837), Color(0.72156864, 0.72156864, 0.72156864, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_pu0ia"]
+_data = {
+&"RESET": SubResource("Animation_hntrw"),
+&"ending": SubResource("Animation_m8udp")
+}
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_vugf1"]
 
 [node name="Exit" type="Control" unique_id=535821240]
 layout_mode = 3
@@ -15,31 +250,217 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ig6vw")
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=243231090]
-layout_mode = 0
-offset_right = 1153.0
-offset_bottom = 646.0
-texture = SubResource("PlaceholderTexture2D_r3g37")
-expand_mode = 3
+[node name="WallColor" type="TextureRect" parent="." unique_id=2090396945]
+modulate = Color(0.26516047, 0.22957009, 0.1439983, 1)
+z_index = -2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CanvasTexture_pu0ia")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=423434797]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=196374040]
+deterministic = true
+libraries/ = SubResource("AnimationLibrary_pu0ia")
+
+[node name="Frame" type="TextureRect" parent="." unique_id=243231090]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 164.0
+offset_top = -7.0
+offset_right = -156.0
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="Floor" type="TextureRect" parent="Frame" unique_id=849255196]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 630.0
+offset_right = -15.0
+offset_bottom = -47.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_pu0ia")
+expand_mode = 2
+
+[node name="CharacterBox" type="HBoxContainer" parent="Frame" unique_id=1241384958]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 40.0
+offset_bottom = 40.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 120
+alignment = 1
+
+[node name="BannerIcon" type="TextureRect" parent="Frame" unique_id=1088586602]
+show_behind_parent = true
+custom_minimum_size = Vector2(1000, 200)
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -153.00002
+offset_top = -336.0
+offset_right = -153.0
+offset_bottom = -136.0
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(1.2, 1)
+size_flags_vertical = 8
+texture = ExtResource("3_vugf1")
+expand_mode = 1
+stretch_mode = 3
+
+[node name="Glass" type="TextureRect" parent="Frame" unique_id=1830537164]
+self_modulate = Color(0.43928, 0.3774, 0.51, 0.3019608)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 106.0
+offset_right = -11.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CanvasTexture_vugf1")
+
+[node name="Frame" type="TextureRect" parent="Frame" unique_id=1686398893]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -183.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_hntrw")
+expand_mode = 1
+
+[node name="RestartButton" type="Button" parent="Frame" unique_id=507415858]
+z_index = 5
+custom_minimum_size = Vector2(500, 120)
 layout_mode = 1
 anchors_preset = -1
-anchor_right = 0.035
-anchor_bottom = 0.062000003
-offset_right = -0.3199997
-offset_bottom = -0.1760025
+anchor_top = 0.82600003
+anchor_right = 1.0
+anchor_bottom = 0.94200003
+offset_top = 0.43798828
+offset_bottom = 0.1459961
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("2_ck83b")
+theme_override_font_sizes/font_size = 48
+flat = true
 
-[node name="Label" type="Label" parent="VBoxContainer" unique_id=577051560]
-layout_mode = 2
+[node name="RestartLabel" type="Label" parent="Frame/RestartButton" unique_id=1938752080]
+visible = false
+self_modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0.30980393, 0.11372549, 0.39607844, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("2_ck83b")
+theme_override_font_sizes/font_size = 82
+text = "Return to Menu"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="RestartButton" type="Button" parent="." unique_id=590872056]
-layout_mode = 0
-offset_left = 840.0
-offset_top = 555.0
-offset_right = 969.0
-offset_bottom = 586.0
-text = "Return to Start"
-icon = SubResource("AnimatedTexture_d6mwh")
+[node name="BlackScreen" type="ColorRect" parent="." unique_id=188795692]
+self_modulate = Color(0, 0, 0, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
 
-[connection signal="pressed" from="RestartButton" to="." method="_on_restart_button_pressed"]
+[node name="IntroLabelTop" type="Label" parent="." unique_id=1872010214]
+self_modulate = Color(0.72156864, 0.72156864, 0.72156864, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 293.0
+offset_top = 426.0
+offset_right = -277.0
+offset_bottom = -575.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0.30980393, 0.11372549, 0.39607844, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("2_ck83b")
+theme_override_font_sizes/font_size = 64
+text = "As the opening night comes and goes -"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="IntroLabelMid" type="Label" parent="." unique_id=1077968247]
+self_modulate = Color(0.72156864, 0.72156864, 0.72156864, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 353.0
+offset_top = 539.0
+offset_right = -344.0
+offset_bottom = -462.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0.30980393, 0.11372549, 0.39607844, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("2_ck83b")
+theme_override_font_sizes/font_size = 64
+text = "Your space fluency is clear."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="IntroLabelBottom" type="Label" parent="." unique_id=1309985422]
+self_modulate = Color(0.72156864, 0.72156864, 0.72156864, 0)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 350.0
+offset_top = 633.0
+offset_right = -347.0
+offset_bottom = -368.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0.30980393, 0.11372549, 0.39607844, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("2_ck83b")
+theme_override_font_sizes/font_size = 64
+text = "For all to see..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="Frame/RestartButton" to="." method="_on_restart_button_pressed"]
