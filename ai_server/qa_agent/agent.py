@@ -29,6 +29,11 @@ root_agent = Agent(
     If at least one of the four criteria is false, return the following dict and summarize the reason why the response failed to the user and summarize the user response in one sentence and place it in 'summary':
     {"validity": False, "reason": "", "summary": ""}
 
+    CRITICAL RULES:
+    - Output ONLY the JSON object. No preamble, no explanation, no markdown fences.
+    - Do not write anything before or after the JSON.
+    - The JSON must be on a single line.
+
     """,
     tools=[prechecks]
 )

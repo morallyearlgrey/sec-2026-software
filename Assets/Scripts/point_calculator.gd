@@ -1,7 +1,7 @@
 extends Node
 
-# calculate_points takes the QA summary (plain English sentence) and the alien
-# index, matches liked/banned words, and accumulates a score on the alien.
+# calculate_points takes the QA summary (plain-English sentence) and the alien
+# index, matches liked/banned words, and accumulates a score on that alien.
 func calculate_points(input: String, alien_id: int) -> void:
 	var alien: Dictionary = Global.get_alien(alien_id)
 	if alien.is_empty():
@@ -26,11 +26,11 @@ func calculate_points(input: String, alien_id: int) -> void:
 
 	for word in bad_words.keys():
 		if words.has(word.to_lower()):
-			score += bad_words[word]   # these are already negative
+			score += bad_words[word]   # already negative
 
 	score = max(score, 0)
 
-	# Accumulate (don't overwrite — add to running total)
+	# Accumulate (add to running total, don't overwrite)
 	Global.Aliens[alien_id]["points"] = alien.get("points", 0) + score
 
 func _ready() -> void:

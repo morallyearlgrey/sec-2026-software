@@ -1,17 +1,21 @@
 [background arg="res://Assets/Backgrounds/nightsky.png" fade="0.5"]
+alien_1: [portrait arg="{alien_image}"]
 
 {alien_name}: {alien_response}
 
 label turn_start
 do DialogueController.show_input()
 signal DialogueController turn_resolved
+
 if {turn_valid} == false:
 	{alien_name}: {qa_reason}
 	jump turn_start
 end_if
+
 if {game_over} == true:
 	jump farewell
 end_if
+
 {alien_name}: {alien_response}
 jump turn_start
 

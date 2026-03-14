@@ -1,6 +1,9 @@
 import os
 import sys
 import json
+import re
+import importlib
+import importlib.util
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -13,14 +16,22 @@ load_dotenv()
 AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PLAYER_ID = "mcdiggity"
 
-# Ensure ai_server/ and alien_agent/ are always importable
-alien_agent_path = os.path.join(AGENT_DIR, "alien_agent")
-if AGENT_DIR not in sys.path:
-    sys.path.insert(0, AGENT_DIR)
-if alien_agent_path not in sys.path:
-    sys.path.insert(0, alien_agent_path)
+# Directory layout expected:
+#   ai_server/
+#     server.py
+#     alien_generator.py
+#     alien_agent/
+#       agent.py          ← alien personality agent
+#     qa_agent/
+#       agent.py          ← QA agent (wraps prechecks via FunctionTool)
 
-# Shared session services — must persist across requests
+_ALIEN_AGENT_DIR = os.path.join(AGENT_DIR, "alien_agent")
+_QA_AGENT_DIR    = os.path.join(AGENT_DIR, "qa_agent")
+
+for _p in [AGENT_DIR, _ALIEN_AGENT_DIR, _QA_AGENT_DIR]:
+    if os.path.isdir(_p) and _p not in sys.path:
+        sys.path.insert(0, _p)
+
 _qa_svc    = InMemorySessionService()
 _alien_svc = InMemorySessionService()
 
@@ -31,6 +42,41 @@ app: FastAPI = get_fast_api_app(
 )
 
 
+# ── agent loaders ──────────────────────────────────────────────────────────────
+
+def _load_module(mod_name: str, file_path: str, package: str):
+    """Load a Python module from an absolute file path, cached in sys.modules."""
+    if mod_name not in sys.modules:
+        spec = importlib.util.spec_from_file_location(
+            mod_name, file_path, submodule_search_locations=[]
+        )
+        mod             = importlib.util.module_from_spec(spec)
+        mod.__package__ = package
+        sys.modules[mod_name] = mod
+        spec.loader.exec_module(mod)
+    return sys.modules[mod_name]
+
+
+def _load_qa_agent():
+    mod = _load_module(
+        "qa_agent.agent",
+        os.path.join(_QA_AGENT_DIR, "agent.py"),
+        "qa_agent",
+    )
+    return mod.root_agent
+
+
+def _load_alien_agent():
+    mod = _load_module(
+        "alien_agent.agent",
+        os.path.join(_ALIEN_AGENT_DIR, "agent.py"),
+        "alien_agent",
+    )
+    return mod.root_agent
+
+
+# ── helpers ────────────────────────────────────────────────────────────────────
+
 def _strip_fences(text: str) -> str:
     text = text.strip()
     if text.startswith("```"):
@@ -40,58 +86,63 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-def _unwrap_reply(raw: str) -> str:
-    """If the agent echoed back a JSON object, extract the text value from it."""
+def _parse_qa_response(raw: str) -> dict:
+    """Extract {validity, reason, summary} from whatever the QA agent returns."""
+    cleaned = _strip_fences(raw)
+    # Try every JSON object in the response, back-to-front
+    for blob in reversed(list(re.finditer(r'\{[^{}]+\}', cleaned, re.DOTALL))):
+        try:
+            obj = json.loads(blob.group())
+            if "validity" in obj:
+                v = obj["validity"]
+                if isinstance(v, str):
+                    obj["validity"] = v.strip().lower() == "true"
+                obj.setdefault("reason",  "")
+                obj.setdefault("summary", "")
+                return obj
+        except Exception:
+            continue
+    try:
+        obj = json.loads(cleaned)
+        if isinstance(obj, dict) and "validity" in obj:
+            return obj
+    except Exception:
+        pass
+    return {"validity": False, "reason": raw[:300], "summary": ""}
+
+
+def _unwrap_alien_reply(raw: str) -> str:
     raw = raw.strip()
     try:
         obj = json.loads(raw)
         if isinstance(obj, dict):
             for key in ("alien_dialog", "reply", "response", "message", "text"):
-                if key in obj:
-                    return str(obj[key])
+                if key in obj and isinstance(obj[key], str):
+                    return obj[key]
             for v in obj.values():
-                if isinstance(v, str):
+                if isinstance(v, str) and v:
                     return v
     except Exception:
         pass
     return raw
 
 
-def _parse_qa_response(raw: str) -> dict:
-    """Robustly parse QA agent response — handles JSON, fenced JSON, or plain text."""
-    cleaned = _strip_fences(raw)
-    # Try direct JSON parse
-    try:
-        result = json.loads(cleaned)
-        if isinstance(result, dict) and "validity" in result:
-            return result
-    except Exception:
-        pass
-    # Try to find a JSON object inside the text
-    try:
-        start = cleaned.index("{")
-        end   = cleaned.rindex("}") + 1
-        result = json.loads(cleaned[start:end])
-        if isinstance(result, dict) and "validity" in result:
-            return result
-    except Exception:
-        pass
-    # Fallback — treat whole response as a reason for failure
-    return {"validity": False, "reason": raw[:200], "summary": ""}
-
+# ── request models ─────────────────────────────────────────────────────────────
 
 class QARequest(BaseModel):
     session_id: str
-    question: str
-    answer: str
+    question:   str
+    answer:     str
 
 
 class AlienRequest(BaseModel):
-    session_id: str
+    session_id:   str
     alien_dialog: str
     turn_summary: str
     alien_prompt: str = ""
 
+
+# ── routes ─────────────────────────────────────────────────────────────────────
 
 @app.get("/ping")
 async def ping():
@@ -110,6 +161,10 @@ async def list_agents():
 
 @app.get("/generate-alien")
 async def generate_alien():
+    """
+    Generate a fresh random alien character.
+    Returns all fields needed by the Godot client, including a system prompt.
+    """
     try:
         from alien_generator import AlienGenerator
         gen       = AlienGenerator()
@@ -126,22 +181,27 @@ async def generate_alien():
 
         prompt = (
             f"Your name is {name}. You are an alien. Your mood is {mood} and "
-            f"you're an {mbti}. You work as a {situation[0]}, and you are situated in a "
-            f"booth at a market where you are selling {situation[1]}. You enjoy {likes[0]}, "
-            f"{likes[1]}, and {likes[2]}. You hate {dislikes[0]}, {dislikes[1]}, and "
-            f"{dislikes[2]}. You have a maximum dialog of 5 responses before you want to end "
-            f"the conversation. Your greeting is \"{greeting}\". Someone is looking to invite "
-            f"you to the grand opening of their restaurant, but you don't know that yet. All "
-            f"you know is that they approached your booth. "
-            f"Always respond in plain conversational text. Never wrap your response in JSON."
+            f"you are an {mbti}. You work as a {situation[0]} at a market booth "
+            f"selling {situation[1]}. You enjoy {likes[0]}, {likes[1]}, and {likes[2]}. "
+            f"You dislike {dislikes[0]}, {dislikes[1]}, and {dislikes[2]}. "
+            f"You have at most 5 exchanges before you want to wrap up the conversation. "
+            f"Your opening greeting is: \"{greeting}\". "
+            f"Someone has approached your booth and may try to invite you somewhere. "
+            f"Respond only with natural conversational dialogue as your character. "
+            f"Never output JSON. Never break character."
         )
 
         return {
-            "name": name, "mood": mood, "mbti": mbti,
-            "situation": situation, "greeting": greeting,
-            "likes": likes, "dislikes": dislikes,
-            "liked_words": liked_words, "banned_words": banned_words,
-            "prompt": prompt,
+            "name":         name,
+            "mood":         mood,
+            "mbti":         mbti,
+            "situation":    situation,
+            "greeting":     greeting,
+            "likes":        likes,
+            "dislikes":     dislikes,
+            "liked_words":  liked_words,
+            "banned_words": banned_words,
+            "prompt":       prompt,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -149,45 +209,38 @@ async def generate_alien():
 
 @app.post("/run-qa")
 async def run_qa(req: QARequest):
-    import importlib
+    """
+    Validate a player reply via the QA agent.
+    Returns {validity: bool, reason: str, summary: str}.
+    """
     from google.adk.runners import Runner
     from google.genai import types as genai_types
 
     try:
-        shared_path = os.path.join(AGENT_DIR, "shared")
-        if shared_path not in sys.path:
-            sys.path.insert(0, shared_path)
-        qa_path = os.path.join(AGENT_DIR, "qa_agent")
-        if qa_path not in sys.path:
-            sys.path.insert(0, qa_path)
-
-        if "agent" in sys.modules:
-            del sys.modules["agent"]
-        qa_mod = importlib.import_module("agent")
-        agent  = qa_mod.root_agent
-
+        agent  = _load_qa_agent()
         runner = Runner(agent=agent, app_name="qa_agent", session_service=_qa_svc)
 
-        existing = await _qa_svc.get_session(app_name="qa_agent", user_id=PLAYER_ID,
-                                             session_id=req.session_id)
+        existing = await _qa_svc.get_session(
+            app_name="qa_agent", user_id=PLAYER_ID, session_id=req.session_id
+        )
         if existing is None:
-            await _qa_svc.create_session(app_name="qa_agent", user_id=PLAYER_ID,
-                                         session_id=req.session_id)
+            await _qa_svc.create_session(
+                app_name="qa_agent", user_id=PLAYER_ID, session_id=req.session_id
+            )
 
-        # Pass question and answer separately so prechecks tool gets just the answer
         msg = (
-            f"Alien's question: {req.question}\n"
-            f"Player's answer: {req.answer}\n\n"
-            f"Call prechecks with the player's answer: {req.answer}"
+            f"Alien said: {req.question}\n"
+            f"Player replied: {req.answer}\n\n"
+            f"Validate the player's reply. Call the prechecks tool with: {req.answer}"
         )
         content = genai_types.Content(
             role="user", parts=[genai_types.Part(text=msg)]
         )
 
         raw = ""
-        async for event in runner.run_async(user_id=PLAYER_ID,
-                                            session_id=req.session_id,
-                                            new_message=content):
+        async for event in runner.run_async(
+            user_id=PLAYER_ID, session_id=req.session_id, new_message=content
+        ):
             if event.is_final_response() and event.content and event.content.parts:
                 raw = event.content.parts[0].text or ""
                 if raw:
@@ -204,6 +257,11 @@ async def run_qa(req: QARequest):
 
 @app.post("/run-alien")
 async def run_alien(req: AlienRequest):
+    """
+    Send a player turn to the alien agent and get its next line.
+    Returns {reply: str}.
+    alien_prompt must be provided — it encodes this alien's unique personality.
+    """
     from google.adk.runners import Runner
     from google.adk.agents import Agent
     from google.genai import types as genai_types
@@ -212,6 +270,8 @@ async def run_alien(req: AlienRequest):
         if not req.alien_prompt:
             raise HTTPException(status_code=400, detail="alien_prompt is required")
 
+        # Build agent fresh each call with this alien's personality.
+        # The session stored in _alien_svc preserves conversation history.
         agent = Agent(
             name="alien_agent",
             model="gemini-2.5-flash",
@@ -219,27 +279,31 @@ async def run_alien(req: AlienRequest):
             tools=[],
         )
 
-        runner = Runner(agent=agent, app_name="alien_agent", session_service=_alien_svc)
+        runner = Runner(
+            agent=agent, app_name="alien_agent", session_service=_alien_svc
+        )
 
-        existing = await _alien_svc.get_session(app_name="alien_agent", user_id=PLAYER_ID,
-                                                session_id=req.session_id)
+        existing = await _alien_svc.get_session(
+            app_name="alien_agent", user_id=PLAYER_ID, session_id=req.session_id
+        )
         if existing is None:
-            await _alien_svc.create_session(app_name="alien_agent", user_id=PLAYER_ID,
-                                            session_id=req.session_id)
+            await _alien_svc.create_session(
+                app_name="alien_agent", user_id=PLAYER_ID, session_id=req.session_id
+            )
 
         if req.turn_summary == "(conversation start)":
-            msg = req.alien_dialog
+            msg = "Begin the conversation with your opening greeting."
         else:
-            msg = f'The player said: {req.turn_summary}'
+            msg = f"The player responded: {req.turn_summary}"
 
         content = genai_types.Content(
             role="user", parts=[genai_types.Part(text=msg)]
         )
 
         raw = ""
-        async for event in runner.run_async(user_id=PLAYER_ID,
-                                            session_id=req.session_id,
-                                            new_message=content):
+        async for event in runner.run_async(
+            user_id=PLAYER_ID, session_id=req.session_id, new_message=content
+        ):
             if event.is_final_response() and event.content and event.content.parts:
                 raw = event.content.parts[0].text or ""
                 if raw:
@@ -248,8 +312,7 @@ async def run_alien(req: AlienRequest):
         if not raw:
             raise HTTPException(status_code=500, detail="No response from alien agent")
 
-        reply = _unwrap_reply(raw)
-        return {"reply": reply}
+        return {"reply": _unwrap_alien_reply(raw)}
 
     except HTTPException:
         raise

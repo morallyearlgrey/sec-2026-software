@@ -62,10 +62,13 @@ func _on_sixth_button_pressed()  -> void: _try_start(5)
 # ── logic ──────────────────────────────────────────────────────────────────────
 
 func _try_start(alien_idx: int) -> void:
+	# Block if already visited
 	if Global.button_flags[alien_idx]:
 		return
 
 	Global.cur_alien_idx = alien_idx
+	# start_alien_encounter is async; we await so button stays "busy"
+	# until the timeline ends (timeline_ended fires and hides the pin).
 	await DialogueController.start_alien_encounter(alien_idx)
 
 

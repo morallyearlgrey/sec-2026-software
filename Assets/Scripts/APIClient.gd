@@ -2,12 +2,12 @@ extends Node
 
 # APIClient handles all HTTP communication with the FastAPI server.
 # Endpoints used:
-#   GET  /generate-alien          → alien data dict (includes "prompt")
-#   POST /apps/{agent}/users/{uid}/sessions  → create session, returns {id}
-#   POST /run-qa                  → {validity, reason, summary}
-#   POST /run-alien               → {reply}
+#   GET  /generate-alien                              → alien data dict (includes "prompt")
+#   POST /apps/{agent}/users/{uid}/sessions           → create session, returns {id}
+#   POST /run-qa                                      → {validity, reason, summary}
+#   POST /run-alien                                   → {reply}
 
-const BASE_URL = "http://localhost:8000"
+const BASE_URL  = "http://localhost:8000"
 const PLAYER_ID = "mcdiggity"
 
 var _req: HTTPRequest
@@ -25,7 +25,7 @@ func _on_request_completed(result, code, headers, body) -> void:
 # ── low-level ──────────────────────────────────────────────────────────────────
 
 func _send(method: int, url: String, body_dict: Dictionary = {}) -> Dictionary:
-	var headers = ["Content-Type: application/json"]
+	var headers  = ["Content-Type: application/json"]
 	var body_str = ""
 	if body_dict.size() > 0:
 		body_str = JSON.stringify(body_dict)
@@ -76,7 +76,7 @@ func run_qa(session_id: String, question: String, answer: String) -> Dictionary:
 	return data
 
 ## POST /run-alien  →  {reply: str}
-## alien_prompt must be passed so each alien has its own unique personality
+## alien_prompt must be passed so each alien has its own unique personality.
 func run_alien(session_id: String, alien_dialog: String, turn_summary: String, alien_prompt: String) -> String:
 	var body = {
 		"session_id":   session_id,

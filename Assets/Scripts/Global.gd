@@ -7,10 +7,10 @@ var num_turn: int = 0
 # 6 aliens, indices 0–5
 var button_flags = [false, false, false, false, false, false]
 
-const BASE_URL = "http://localhost:8000"
+const BASE_URL  = "http://localhost:8000"
 const PLAYER_ID = "mcdiggity"
 
-var qa_session_id: String = ""
+var qa_session_id:    String = ""
 var alien_session_id: String = ""
 
 var Aliens: Dictionary = {}
@@ -26,8 +26,8 @@ func register_alien(alien_id: int, data: Dictionary) -> void:
 	data["points"]          = 0
 	data["visited"]         = false
 	data["alien_response"]  = data.get("greeting", "")
-	# Use the McDoogles logo as the portrait for every alien
-	data["src"]             = "res://Assets/Icons/Logo.png"
+	# Portrait: res://Assets/Icons/alien_0.png … alien_5.png
+	data["src"]             = "res://Assets/Icons/alien_%d.png" % alien_id
 	Aliens[alien_id]        = data
 
 	Dialogic.VAR.set("alien_name",     data.get("name", "???"))
