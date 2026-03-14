@@ -2,7 +2,7 @@
 join alien_1 center
 
 alien_1: Hello!
-alien_1: filler
+alien_1: filler for intro
 if {turn_valid} == false:
     alien_1: What are you talking about?
     alien_1: Please leave.

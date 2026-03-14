@@ -4,7 +4,7 @@ func _on_first_button_pressed() -> void:
 	if Global.button_flags[0] == true:
 		pass
 	else:
-		Dialogic.start("first_alien")
+		Dialogic.start("Timelines/first_alien")
 		Global.button_flags[0] = true
 
 func _on_second_button_pressed() -> void:
