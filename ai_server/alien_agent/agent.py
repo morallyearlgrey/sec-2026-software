@@ -6,6 +6,9 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types 
 
+import json
+
+
 class PlayerInput(BaseModel):
     player_id: str
     alien_id: str
@@ -30,7 +33,7 @@ def get_or_create_alien(player_id: str, alien_id: str):
         new_alien = Alien()
         root_agent = Agent(
             name=f"alien_agent_{alien_id}",
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             instruction=new_alien.get_prompt(),
             output_schema=AlienOutput,
             tools=[]
@@ -56,18 +59,18 @@ async def chat_with_alien(payload: PlayerInput):
     if current_turn > 5:
         return {"dialogue": "[TURN LIMIT REACHED]", "status": "closed"}
 
-    # --- FINAL SESSION INITIALIZATION FIX ---
-    try:
-        # These MUST be awaited!
-        await session_service.get_session(session_id=combined_id)
-    except Exception:
-        print(f"DEBUG: Creating session {combined_id}...")
+    existing = await session_service.get_session(
+        app_name="alien_game",
+        user_id=payload.player_id,
+        session_id=combined_id
+    )
+
+    if existing is None:
         await session_service.create_session(
             session_id=combined_id,
             app_name="alien_game",
             user_id=payload.player_id
         )
-    # ----------------------------------------
 
     injected_prompt = f"""
 <game_state>
@@ -92,13 +95,26 @@ Turn: {current_turn} of 5
         session_id=combined_id,
         new_message=user_content 
     ):
-        if hasattr(event, 'output') and event.output:
-            full_response_obj = event.output
-        elif isinstance(event, AlienOutput):
-            full_response_obj = event
+        if event.is_final_response():
+            if event.content and event.content.parts:
+                full_response_obj = event.content.parts[0].text
+                break
+    
+        # if hasattr(event, 'output') and event.output:
+        #     full_response_obj = event.output
+        # elif isinstance(event, AlienOutput):
+        #     full_response_obj = event
 
     if not full_response_obj:
         return {"error": "Failed to retrieve a structured response."}
+
+    try:
+        # Strip markdown fences if present (Gemini sometimes adds them)
+        clean = full_response_obj.strip().removeprefix("```json").removesuffix("```").strip()
+        full_response_obj = AlienOutput(**json.loads(clean))
+
+    except Exception as e:
+        return {"error": f"Failed to parse structured response: {e}", "raw": full_response_obj}
 
     alien_instance.add_summary(full_response_obj.turn_summary)
     alien_instance.increment_turn()
