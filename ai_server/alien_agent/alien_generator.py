@@ -49,6 +49,8 @@ class AlienGenerator:
             "likes":     likes,
             "dislikes":  dislikes,
             "greeting":  greeting,
+            "points": 0,
+            "src": "",
         }
 
     def get_random_name(self):
