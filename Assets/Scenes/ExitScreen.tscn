@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://d0mn6lbiih7qj" path="res://Assets/Scripts/Exit.gd" id="1_ig6vw"]
 [ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_ck83b"]
-[ext_resource type="Texture2D" uid="uid://dm4bh57c5bjo1" path="res://Assets/Icons/Window.png" id="2_hntrw"]
-[ext_resource type="Texture2D" uid="uid://d6xai0uapep5" path="res://Assets/Icons/Floor.png" id="3_pu0ia"]
-[ext_resource type="Texture2D" uid="uid://bgtiughy4886r" path="res://Assets/Icons/Banner.png" id="3_vugf1"]
+[ext_resource type="Texture2D" uid="uid://eld8fv71e1p0" path="res://Assets/Icons/Window.png" id="2_hntrw"]
+[ext_resource type="Texture2D" uid="uid://bspw0srcixcdt" path="res://Assets/Icons/Floor.png" id="3_pu0ia"]
+[ext_resource type="Texture2D" uid="uid://ca6lt2j0pitup" path="res://Assets/Icons/Banner.png" id="3_vugf1"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_pu0ia"]
 
