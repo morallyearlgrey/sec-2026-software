@@ -38,18 +38,18 @@ class AlienGenerator:
         mood      = self.get_random_mood()
         mbti      = self.get_random_mbti()
         situation = self.get_random_market_booth()
-        greeting  = self.get_random_greeting()
         likes     = self.get_random_likes()
         dislikes  = self.get_random_dislikes(likes)
+        greeting  = self.get_random_greeting(likes, dislikes)
 
         return {
             "name":      name,
             "mood":      mood,
             "mbti":      mbti,
             "situation": situation,
-            "greeting":  greeting,
             "likes":     likes,
             "dislikes":  dislikes,
+            "greeting":  greeting,
         }
 
     def get_random_name(self):
