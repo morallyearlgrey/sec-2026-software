@@ -21,6 +21,8 @@ Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
 Map="*uid://bibagfu4vyltt"
+PointCalculator="*uid://dot1ocsuktmq1"
+APIClient="*uid://bv8aueddwamck"
 Aliens="*uid://owhk806xxj6f"
 cur_alien_idx="*uid://owhk806xxj6f"
 
@@ -33,14 +35,15 @@ directories/dch_directory={
 "alien_4": "res://Assets/Characters/alien_4.dch",
 "alien_5": "res://Assets/Characters/alien_5.dch",
 "alien_8": "res://Assets/Characters/alien_8.dch",
+"alien_one": "res://Assets/Characters/alien_one.dch",
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
+"Timelines/first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
+"Timelines/second_alien": "res://Assets/Scenes/Timelines/second_alien.dtl",
 "eighth_alien": "res://Assets/Scenes/Timelines/eighth_alien.dtl",
 "fifth_alien": "res://Assets/Scenes/Timelines/fifth_alien.dtl",
-"first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
 "fourth_alien": "res://Assets/Scenes/Timelines/fourth_alien.dtl",
-"second_alien": "res://Assets/Scenes/Timelines/second_alien.dtl",
 "seventh_alien": "res://Assets/Scenes/Timelines/seventh_alien.dtl",
 "sixth_alien": "res://Assets/Scenes/Timelines/sixth_alien.dtl",
 "third_alien": "res://Assets/Scenes/Timelines/third_alien.dtl"
