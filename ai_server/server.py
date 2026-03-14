@@ -34,5 +34,11 @@ async def list_agents():
         ]
     }
 
+@app.get("/generate-alien")
+async def generate_aliens():
+    """Makes aliens"""
+    # to do
+
+
 if __name__ == "__main__":
     uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
