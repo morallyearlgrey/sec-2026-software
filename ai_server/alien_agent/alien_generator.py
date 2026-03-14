@@ -4,7 +4,7 @@ class Alien:
     
     def __init__(self):
         # self.__index = 
-        # self.__id = 
+        self.__id = ""
         self.__name = self.get_random_name()
         self.__mood = self.get_random_mood()
         self.__mbti = self.get_random_mbti()
@@ -42,7 +42,8 @@ know is that I approached your booth."
     def get_turn(self):
         return self.__turn
 
-    def get_dict(self):        
+    def get_dict(self):  
+        # EXCLUDE ADK_SESSION      
         return {
             self.__name,
             self.__mood,
@@ -52,6 +53,15 @@ know is that I approached your booth."
             self.__liked_words,
             self.__banned_words
         }
+
+    def set_id(self, id):
+        self.__id = id
+
+    def add_summary(self, summary: str):
+        self.__summaries.append(summary)
+        
+    def increment_turn(self):
+        self.__turn += 1
 
     def get_random_name(self):
         rand = random.randint(0, len(self.alien_names) - 1)
