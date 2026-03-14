@@ -62,7 +62,7 @@ async def list_agents():
 @app.get("/generate-alien")
 async def generate_alien():
     try:
-        from alien_generator import AlienGenerator
+        from alien_agent.alien_generator import AlienGenerator
         gen       = AlienGenerator()
         name      = gen.get_random_name()
         mood      = gen.get_random_mood()
