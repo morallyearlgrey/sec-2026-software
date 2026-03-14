@@ -1,26 +1,24 @@
 import random
+from google.adk.runners import Runner
 
 class Alien:
-    
+# Init  
     def __init__(self):
-        # self.__index = 
-        self.adk_session = ""
-        self.__name = self.get_random_name()
-        self.__mood = self.get_random_mood()
-        self.__mbti = self.get_random_mbti()
-        self.__situation = self.get_random_market_booth()
-        self.__dialog_intro = self.get_random_greeting()
-        self.__liked_words = self.get_random_likes()
-        self.__banned_words = self.get_random_dislikes(self.__liked_words)
-        # self.__happiness_meter = 
-        # self.__src = 
-        self.points = 12
-        self.__summaries = []
-        self.__turn = 0
+        self.__adk_session: Runner = ""
+        self.__name: str = self.get_random_name()
+        self.__mood: str = self.get_random_mood()
+        self.__mbti: str = self.get_random_mbti()
+        self.__situation: str = self.get_random_market_booth()
+        self.__dialog_intro: str = self.get_random_greeting()
+        self.__liked_words: str = self.get_random_likes()
+        self.__banned_words: str = self.get_random_dislikes(self.__liked_words)
+        self.__src: str = ""
+        self.__points: int = 12
+        self.__summaries: list[str] = []
+        self.__turn: int = 0
         
-        # print(self.get_prompt())
-
-    def get_prompt(self):        
+# Methods
+    def get_prompt(self)-> str:        
         return f"You name is {self.__name}. You are an alien. Your mood is {self.__mood} and \
 you're an {self.__mbti}. You work as a {self.__situation[0]}, and you are situated in a \
 booth at a market where you are selling {self.__situation[1]}. You enjoy {self.__liked_words[0]}, \
@@ -30,60 +28,74 @@ the conversation. Your greeting is \"{self.__dialog_intro}\". I am looking to in
 to the grand opening for my restaurant, but you don't know that yet. All you \
 know is that I approached your booth."
 
-    def get_points(self):
-        return self.__points
-    
-    def get_summaries(self):
-        return self.__summaries
-    
-    def get_id(self):
-        return self.__id
-    
-    def get_turn(self):
-        return self.__turn
-
-    def get_dict(self):  
-        # EXCLUDE ADK_SESSION      
-        return {
-            self.__name,
-            self.__mood,
-            self.__mbti,
-            self.__situation,
-            self.__dialog_intro,
-            self.__liked_words,
-            self.__banned_words
+    def alien_dict(self):
+        alien_attributes = {
+            "name": self.__name,
+            "mood": self.__mood,
+            "mbti": self.__mbti,
+            "situation": self.__situation,
+            "dialog intro": self.__dialog_intro,
+            "liked words": self.__liked_words,
+            "banned words": self.__banned_words,
         }
-
-    def set_session(self, session):
-        self.adk_session = session
-
-    def add_summary(self, summary: str):
-        self.__summaries.append(summary)
         
-    def increment_turn(self):
+        alien_backend = {
+            "src": self.__src,
+            "points": self.__points,
+            "summaries": self.__summaries,
+            "turn": self.__turn
+        }
+        
+        return {
+            "alien attributes": alien_attributes,
+            "alien backend": alien_backend
+        }
+                
+    def increment_turn(self) -> None:
         self.__turn += 1
 
-    def get_random_name(self):
+
+# Getters/Setters
+    def get_points(self) -> int:
+        return self.__points
+    
+    def get_summaries(self) -> list[str]:
+        return self.__summaries
+    
+    def get_id(self) -> str:
+        return self.__id
+    
+    def get_turn(self) -> int:
+        return self.__turn
+
+    def set_session(self, session) -> str:
+        self.__adk_session = session
+
+    def add_summary(self, summary: str) -> None:
+        self.__summaries.append(summary)
+
+# Init randoms
+    def get_random_name(self) -> str:
         rand = random.randint(0, len(self.alien_names) - 1)
         return self.alien_names[rand]
 
-    def get_random_mood(self):
+    def get_random_mood(self) -> str:
         rand = random.randint(0, len(self.moods) - 1)
         return self.moods[rand]
             
-    def get_random_mbti(self):
+    def get_random_mbti(self) -> str:
         rand = random.randint(0, len(self.mbti) - 1)
         return self.mbti[rand]
 
-    def get_random_market_booth(self):    
+    def get_random_market_booth(self) -> str:    
         rand = random.randint(0, len(self.market_booths) - 1)
         return self.market_booths[rand]
 
-    def get_random_greeting(self):
+    def get_random_greeting(self) -> str:
         rand = random.randint(0, len(self.greetings) - 1)
         return self.greetings[rand]
     
-    def get_random_likes(self):
+    def get_random_likes(self) -> list[str]:
         likes = []
         
         for i in range(3):
@@ -96,7 +108,7 @@ know is that I approached your booth."
             
         return likes
     
-    def get_random_dislikes(self, likes):
+    def get_random_dislikes(self, likes) -> list[str]:
         dislikes = []
         
         for i in range(3):
@@ -109,7 +121,7 @@ know is that I approached your booth."
         
         return dislikes
 
-    alien_names = [
+    alien_names: list[str] = [
         "Krag-Vark", "Lumina", "X'ylar", "Glip-Glop", "Xenophon", "Sshirra",
         "Grozznok", "Syllis", "Q-Tox", "Zorp", "Valerax", "Xis",
         "Thrax", "Aeryn", "Z'neer", "Poofer", "Thal'Darim", "Sslith",
@@ -132,7 +144,7 @@ know is that I approached your booth."
         "Drog", "Yna", "Q'Ri", "Gloop-Gloop", "Thorn", "Vex"
     ]
 
-    market_booths = [
+    market_booths: list[list[str]] = [
         ["Farmer", "Bananas"],
         ["Beekeeper", "Wildflower Honey"],
         ["Baker", "Sourdough Bread"],
@@ -165,12 +177,12 @@ know is that I approached your booth."
         ["Cartographer", "Vintage-style Maps"]
     ]
 
-    mbti = [
+    mbti: list[str] = [
         "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj", 
         "esfp", "isfp", "entj", "intj", "enfp", "infp", "estj", "istj"
     ]
 
-    moods = [
+    moods: list[str] = [
         "Overexcited", "Hyper", "Frantic", "Anxious", "Restless", 
         "Jittery", "Eager", "Rowdy", "Aggressive", "Panicked",
         "Chill", "Sleepy", "Lazy", "Melancholic", "Serene", 
@@ -185,7 +197,7 @@ know is that I approached your booth."
         "Formal", "Strict", "Arrogant", "Confident", "Mischievous"
     ]
 
-    greetings = [
+    greetings: list[str] = [
         "Hi, welcome to my booth!",
         "Good day, what's your name?",
         "Step closer, traveler, see what I've found.",
@@ -218,7 +230,7 @@ know is that I approached your booth."
         "Blessings upon your hive. What can I do for you?"
     ]
     
-    likes = [
+    likes: list[str] = [
         "culinary arts",
         "the game zorx",
         "rhythmic gymnastics",
