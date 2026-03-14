@@ -20,6 +20,9 @@ config/icon="res://Assets/Characters/icon.svg"
 Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
+Map="*uid://bibagfu4vyltt"
+Aliens="*uid://owhk806xxj6f"
+cur_alien_idx="*uid://owhk806xxj6f"
 PointCalculator="*uid://dot1ocsuktmq1"
 APIClient="*uid://bv8aueddwamck"
 ButtonController="*res://Assets/Scripts/ButtonController.gd"
@@ -37,15 +40,15 @@ directories/dch_directory={
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
-"alien_encounter": "res://Assets/Scenes/Timelines/alien_encounter.dtl",
-"first_alien": "res://Assets/Scripts/first_alien.dtl"
+"Scripts/first_alien": "res://Assets/Scripts/first_alien.dtl",
+"alien_encounter": "res://Assets/Scenes/Timelines/alien_encounter.dtl"
 }
 layout/style_directory={
-"": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres",
-"Alien1_Textbox": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres"
+"Alien1_Textbox": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres",
+"Alien8_Textbook": "res://Assets/Styles/Textbox Styles/Alien8_Textbook.tres"
 }
-layout/style_list=["res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres"]
-layout/default_style="res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres"
+layout/style_list=["res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres", "res://Assets/Styles/Textbox Styles/Alien8_Textbook.tres"]
+layout/default_style="res://Assets/Backgrounds/Alien1_Textbox.tres"
 text/letter_speed=0.01
 text/initial_text_reveal_skippable=true
 text/text_reveal_skip_delay=0.1

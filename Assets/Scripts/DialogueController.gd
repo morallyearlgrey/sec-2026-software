@@ -24,42 +24,33 @@ signal turn_resolved
 
 func start_alien_encounter(alien_idx: int) -> void:
 	_alien_idx = alien_idx
-	_turn      = 0
-
-	var alien_data: Dictionary = await APIClient.generate_alien()
-	if alien_data.has("error") or alien_data.is_empty():
-		push_error("DialogueController: generate_alien failed")
+	_turn = 0
+	
+	var result: Dictionary = await APIClient.get_alien(alien_idx)
+	
+	if result.has("error") or result.is_empty():
+		push_error("DialogueController: get_alien failed.")
 		return
 
-	Global.alien_session_id = await APIClient.create_session("alien_agent")
-	Global.qa_session_id    = await APIClient.create_session("qa_agent")
+	# Extract the nested 'alien' info and the 'dialogue' greeting
+	var alien_info = result.get("alien", {})
+	var intro: String = result.get("dialogue", "Greetings, traveler.") 
 
-	Global.register_alien(alien_idx, alien_data)
-	Global.cur_alien_idx = alien_idx
-
-	var intro: String = await APIClient.run_alien(
-		Global.alien_session_id,
-		alien_data.get("greeting", "Hello."),
-		"(conversation start)"
-	)
-	if intro == "":
-		intro = alien_data.get("greeting", "Hello.")
-
+	# Register in Global
+	Global.register_alien(alien_idx, alien_info)
 	Global.Aliens[alien_idx]["alien_response"] = intro
-
+	
+	# Sync to Dialogic
 	Dialogic.VAR.set("alien_response", intro)
-	Dialogic.VAR.set("alien_name",     alien_data.get("name", "???"))
-	Dialogic.VAR.set("alien_image",    Global.Aliens[alien_idx]["src"])
-	Dialogic.VAR.set("player_input",   "")
-	Dialogic.VAR.set("turn_valid",     false)
-	Dialogic.VAR.set("qa_reason",      "")
-	Dialogic.VAR.set("turn_number",    0)
-	Dialogic.VAR.set("game_over",      false)
-	Dialogic.VAR.set("timed_out",      false)
-
+	Dialogic.VAR.set("alien_name", alien_info.get("name", "Unknown"))
+	Dialogic.VAR.set("alien_image", Global.Aliens[alien_idx]["src"]) # McDoogles Logo
+	
+	# Reset game state vars
+	Dialogic.VAR.set("turn_number", 0)
+	Dialogic.VAR.set("game_over", false)
+	
 	Dialogic.start("alien_encounter")
-
-
+	
 # ══════════════════════════════════════════════════════════════════════════════
 # Called synchronously from timeline:  do DialogueController.show_input()
 # Then timeline immediately hits:      signal DialogueController turn_resolved
@@ -234,42 +225,43 @@ func _on_submit() -> void:
 # ══════════════════════════════════════════════════════════════════════════════
 
 func _process_turn(player_text: String) -> void:
-	var alien_line: String = Global.Aliens[_alien_idx].get("alien_response", "")
+	# 1. Get the current trust points and alien ID for the payload
+	var current_points: int = Global.Aliens[_alien_idx].get("points", 0)
+	var alien_id: String = str(_alien_idx) # Using the index as the persistent ID
 
-	var qa: Dictionary = await APIClient.run_qa(
-		Global.qa_session_id, alien_line, player_text
-	)
+	# 2. Call our new unified endpoint
+	# This replaces BOTH run_qa and run_alien. The Python server now handles
+	# the "is this valid?" check and the "AI response" in one structured object.
+	var result: Dictionary = await APIClient.chat_with_alien(alien_id, player_text, current_points)
 
-	var is_valid: bool  = qa.get("validity", false)
-	var reason:  String = qa.get("reason",  "That response wasn't quite right.")
-	var summary: String = qa.get("summary", player_text)
-
-	if not is_valid:
+	# 3. Handle Network/API Errors
+	if result.has("error"):
 		Dialogic.VAR.set("turn_valid", false)
-		Dialogic.VAR.set("qa_reason",  reason)
+		Dialogic.VAR.set("qa_reason", "The transmission was interrupted...")
 		emit_signal("turn_resolved")
 		return
 
+	# 4. Handle Logic (Turn validation and Response)
+	# Python returns an 'AlienOutput' which contains: alien_dialogue & turn_summary
+	var reply: String = result.get("dialogue", "...")
+	
 	_turn += 1
-	Dialogic.VAR.set("turn_valid",  true)
+	Dialogic.VAR.set("turn_valid", true)
 	Dialogic.VAR.set("turn_number", _turn)
-	Dialogic.VAR.set("qa_reason",   "")
+	Dialogic.VAR.set("qa_reason", "")
+	Dialogic.VAR.set("alien_response", reply)
 
+	# 5. Update Global State
+	Global.Aliens[_alien_idx]["alien_response"] = reply
+	
+	# We use the AI's summary for point calculation (cleaner than raw player text)
+	var summary: String = result.get("alien", {}).get("last_summary", player_text)
 	PointCalculator.calculate_points(summary, _alien_idx)
 
+	# 6. Check for Game Over
 	if _turn >= MAX_TURNS:
 		Global.Aliens[_alien_idx]["visited"] = true
-		Global.button_flags[_alien_idx]      = true
+		Global.button_flags[_alien_idx] = true
 		Dialogic.VAR.set("game_over", true)
-		emit_signal("turn_resolved")
-		return
 
-	var reply: String = await APIClient.run_alien(
-		Global.alien_session_id, alien_line, summary
-	)
-	if reply == "":
-		reply = "Hmm… interesting."
-
-	Global.Aliens[_alien_idx]["alien_response"] = reply
-	Dialogic.VAR.set("alien_response", reply)
 	emit_signal("turn_resolved")
