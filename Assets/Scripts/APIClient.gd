@@ -56,8 +56,25 @@ func send_request(method: int, url: String, body_dict: Dictionary = {}) -> Dicti
 				
 	
 # alien stuff
-func generate_alien() -> Dictionary:
-	return await send_request(HTTPClient.METHOD_GET, BASE_URL+"/generate-alien");
+func generate_aliens() -> bool:
+	var data = await send_request(HTTPClient.METHOD_GET, BASE_URL + "/generate-aliens")
+ 
+	if data.has("error") or not data.has("aliens"):
+		push_error("APIClient.generate_aliens failed: " + str(data))
+		return false
+ 
+	var raw: Array = data["aliens"]
+	Global.aliens.clear()
+ 
+	for i in range(raw.size()):
+		var alien: Dictionary = raw[i]
+		# attach client-side fields
+		alien["src"]     = "res://Assets/Characters/images/alien%d.png" % (randi() % 8 + 1)
+		alien["points"]  = 0
+		alien["visited"] = false
+		Global.aliens.append(alien)
+ 
+	return true
 	
 # make a session for the agent, could be qa or alien
 func create_session(agent_name: String) -> String:

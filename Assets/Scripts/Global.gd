@@ -1,16 +1,11 @@
 extends Node
 var dynamic_line: String = "123"
 var player_input: String = ""
-var num_turn: int = 0;
 
-var button_flags = [false, false, false, false, false, false, false, false]
+#var button_flags = [false, false, false, false, false, false, false, false]
 
 const BASE_URL = "http://localhost:8000"
 const PLAYER_ID = "mcdiggity"
-
-var qa_session_id: String = "";
-var alien_session_id: String = "";
-
 
 # index, int
 # name, string
@@ -24,10 +19,26 @@ var alien_session_id: String = "";
 # happiness_meter, float
 # src, string
 # points, int
-const Aliens = {
-}
+var aliens: Array = []
 
+var qa_session_id:    String = ""
+var alien_session_id: String = ""
 var cur_alien_idx = 0;
 
-func get_alien(alien_id: int) -> Dictionary:
-	return Aliens.get(alien_id, {})
+func get_alien(idx: int) -> Dictionary:
+	if idx >= 0 and idx < aliens.size():
+		return aliens[idx]
+	return {}
+	
+func set_alien_field(idx: int, key: String, value) -> void:
+	if idx >= 0 and idx < aliens.size():
+		aliens[idx][key] = value
+		
+func mark_visited(idx: int) -> void:
+	set_alien_field(idx, "visited", true)
+	
+func total_points() -> int:
+	var sum = 0
+	for a in aliens:
+		sum += a.get("points", 0)
+	return sum
