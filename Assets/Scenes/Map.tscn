@@ -1,8 +1,10 @@
-[gd_scene format=3 uid="uid://csfxjrkkofs3o"]
+[gd_scene format=3 uid="uid://bicf6mqy7kavd"]
 
 [ext_resource type="Script" uid="uid://bhnxqxp6rnt8p" path="res://Assets/Scripts/ButtonController.gd" id="1_u8q4h"]
-[ext_resource type="Texture2D" uid="uid://dn4wcm00ep6a3" path="res://Assets/Backgrounds/Map.png" id="2_xtdxc"]
-[ext_resource type="Texture2D" uid="uid://dqwv2ce888my5" path="res://Assets/Icons/MapPointer.png" id="3_iy4he"]
+[ext_resource type="Texture2D" uid="uid://bwakjastik0ux" path="res://Assets/Backgrounds/Map.png" id="2_xtdxc"]
+[ext_resource type="Texture2D" uid="uid://di23bwqg47204" path="res://Assets/Icons/MapPointer.png" id="3_iy4he"]
+[ext_resource type="AudioStream" uid="uid://cmrt82hjep24a" path="res://Assets/Music/Jeremy Blake - Powerup!  NO COPYRIGHT 8-bit Music.mp3" id="4_iy4he"]
+[ext_resource type="StyleBox" uid="uid://dhcsmxjuho8id" path="res://Assets/Styles/Textbox Styles/Textbox_Textures/clear_button.tres" id="4_wdgfw"]
 
 [node name="Control" type="Control" unique_id=170420671]
 layout_mode = 3
@@ -24,86 +26,108 @@ grow_vertical = 2
 texture = ExtResource("2_xtdxc")
 expand_mode = 1
 
-[node name="Second_Button" type="Button" parent="." unique_id=423949889]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.007
-anchor_bottom = 0.012
-offset_left = 633.0
-offset_top = 805.0
-offset_right = 737.936
-offset_bottom = 884.224
-icon = ExtResource("3_iy4he")
-expand_icon = true
-
 [node name="First_Button" type="Button" parent="." unique_id=585005460]
 layout_mode = 0
-offset_left = 194.0
-offset_top = 41.0
-offset_right = 308.0
-offset_bottom = 137.0
+offset_left = 1137.0
+offset_top = 758.0
+offset_right = 1257.0
+offset_bottom = 858.0
+theme_override_styles/normal = ExtResource("4_wdgfw")
+theme_override_styles/pressed = ExtResource("4_wdgfw")
+theme_override_styles/hover = ExtResource("4_wdgfw")
+theme_override_styles/disabled = ExtResource("4_wdgfw")
+theme_override_styles/focus = ExtResource("4_wdgfw")
 icon = ExtResource("3_iy4he")
+icon_alignment = 1
 expand_icon = true
 
-[node name="Third_Button" type="Button" parent="." unique_id=34725446]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=1864558445]
+stream = ExtResource("4_iy4he")
+volume_db = -1.0
+autoplay = true
+
+[node name="Second_Button" type="Button" parent="." unique_id=1749807383]
 layout_mode = 0
-offset_left = 1407.0
-offset_top = 461.0
-offset_right = 1499.0
-offset_bottom = 557.0
+offset_left = 536.0
+offset_top = 430.0
+offset_right = 656.0
+offset_bottom = 530.0
+pivot_offset = Vector2(58, 58)
+theme_override_styles/normal = ExtResource("4_wdgfw")
+theme_override_styles/pressed = ExtResource("4_wdgfw")
+theme_override_styles/hover = ExtResource("4_wdgfw")
+theme_override_styles/disabled = ExtResource("4_wdgfw")
+theme_override_styles/focus = ExtResource("4_wdgfw")
 icon = ExtResource("3_iy4he")
+icon_alignment = 1
 expand_icon = true
 
-[node name="Fourth_Button" type="Button" parent="." unique_id=1811504938]
+[node name="Third_Button" type="Button" parent="." unique_id=1479028713]
 layout_mode = 0
-offset_left = 954.0
-offset_top = 57.0
-offset_right = 1046.0
-offset_bottom = 133.0
+offset_left = 1577.0
+offset_top = 744.0
+offset_right = 1697.0
+offset_bottom = 844.0
+pivot_offset = Vector2(58, 58)
+theme_override_styles/normal = ExtResource("4_wdgfw")
+theme_override_styles/pressed = ExtResource("4_wdgfw")
+theme_override_styles/hover = ExtResource("4_wdgfw")
+theme_override_styles/disabled = ExtResource("4_wdgfw")
+theme_override_styles/focus = ExtResource("4_wdgfw")
 icon = ExtResource("3_iy4he")
+icon_alignment = 1
 expand_icon = true
 
-[node name="Fifth_Button" type="Button" parent="." unique_id=509004130]
+[node name="Fourth_Button" type="Button" parent="." unique_id=2139432720]
 layout_mode = 0
-offset_left = 198.0
-offset_top = 424.0
-offset_right = 276.0
-offset_bottom = 502.0
+offset_left = 1127.0
+offset_top = 271.0
+offset_right = 1247.0
+offset_bottom = 371.0
+theme_override_styles/normal = ExtResource("4_wdgfw")
+theme_override_styles/pressed = ExtResource("4_wdgfw")
+theme_override_styles/hover = ExtResource("4_wdgfw")
+theme_override_styles/disabled = ExtResource("4_wdgfw")
+theme_override_styles/focus = ExtResource("4_wdgfw")
 icon = ExtResource("3_iy4he")
+icon_alignment = 1
 expand_icon = true
 
-[node name="Sixth_Button" type="Button" parent="." unique_id=1964274303]
+[node name="Fifth_Button" type="Button" parent="." unique_id=1047478895]
 layout_mode = 0
-offset_left = 1624.0
-offset_top = 729.0
-offset_right = 1737.0
-offset_bottom = 829.0
+offset_left = 1431.0
+offset_top = 60.0
+offset_right = 1551.0
+offset_bottom = 160.0
+pivot_offset = Vector2(58, 58)
+theme_override_styles/normal = ExtResource("4_wdgfw")
+theme_override_styles/pressed = ExtResource("4_wdgfw")
+theme_override_styles/hover = ExtResource("4_wdgfw")
+theme_override_styles/disabled = ExtResource("4_wdgfw")
+theme_override_styles/focus = ExtResource("4_wdgfw")
 icon = ExtResource("3_iy4he")
+icon_alignment = 1
 expand_icon = true
 
-[node name="Seventh_Button" type="Button" parent="." unique_id=618556754]
+[node name="Sixth_Button" type="Button" parent="." unique_id=1179080680]
 layout_mode = 0
-offset_left = 560.0
-offset_top = 423.0
-offset_right = 636.0
-offset_bottom = 501.0
+offset_left = 548.0
+offset_top = 48.0
+offset_right = 668.0
+offset_bottom = 148.0
+pivot_offset = Vector2(58, 58)
+theme_override_styles/normal = ExtResource("4_wdgfw")
+theme_override_styles/pressed = ExtResource("4_wdgfw")
+theme_override_styles/hover = ExtResource("4_wdgfw")
+theme_override_styles/disabled = ExtResource("4_wdgfw")
+theme_override_styles/focus = ExtResource("4_wdgfw")
 icon = ExtResource("3_iy4he")
+icon_alignment = 1
 expand_icon = true
 
-[node name="Eighth_Button" type="Button" parent="." unique_id=1409025664]
-layout_mode = 0
-offset_left = 1423.0
-offset_top = 37.0
-offset_right = 1524.0
-offset_bottom = 145.0
-icon = ExtResource("3_iy4he")
-expand_icon = true
-
-[connection signal="pressed" from="Second_Button" to="." method="_on_second_button_pressed"]
 [connection signal="pressed" from="First_Button" to="." method="_on_first_button_pressed"]
+[connection signal="pressed" from="Second_Button" to="." method="_on_second_button_pressed"]
 [connection signal="pressed" from="Third_Button" to="." method="_on_third_button_pressed"]
 [connection signal="pressed" from="Fourth_Button" to="." method="_on_fourth_button_pressed"]
 [connection signal="pressed" from="Fifth_Button" to="." method="_on_fifth_button_pressed"]
 [connection signal="pressed" from="Sixth_Button" to="." method="_on_sixth_button_pressed"]
-[connection signal="pressed" from="Seventh_Button" to="." method="_on_seventh_button_pressed"]
-[connection signal="pressed" from="Eighth_Button" to="." method="_on_eighth_button_pressed"]

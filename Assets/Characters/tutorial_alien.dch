@@ -7,19 +7,19 @@
 "prefix": "",
 "sound_mood_default": "",
 "sound_moods": {},
-"style": "",
+"style": "Alien1_Textbox",
 "suffix": ""
 },
-&"default_portrait": "New portrait",
+&"default_portrait": "neutral",
 &"description": "",
-&"display_name": "{alien_name}",
+&"display_name": "Mr. Engineer",
 &"mirror": false,
 &"nicknames": [""],
 &"offset": Vector2(0, 0),
 &"portraits": {
-"New portrait": {
+"neutral": {
 "export_overrides": {
-"image": "\"{alien_image}\""
+"image": "\"res://Assets/Characters/images/tutorial_alien.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),

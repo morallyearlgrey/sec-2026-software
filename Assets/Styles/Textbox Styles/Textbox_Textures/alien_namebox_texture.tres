@@ -1,0 +1,15 @@
+[gd_resource type="StyleBoxTexture" format=3 uid="uid://7a11nqbb0cs5"]
+
+[ext_resource type="Texture2D" uid="uid://cdlaqxc56luxu" path="res://Assets/Styles/Textbox Styles/Textbox_Textures/nine patch.png" id="1_0wwii"]
+
+[resource]
+texture = ExtResource("1_0wwii")
+texture_margin_left = 24.0
+texture_margin_top = 24.0
+texture_margin_right = 24.0
+texture_margin_bottom = 24.0
+expand_margin_left = 5.0
+expand_margin_top = 5.0
+expand_margin_right = 5.0
+expand_margin_bottom = 5.0
+modulate_color = Color(0.6901961, 0.4117647, 0.87058824, 1)

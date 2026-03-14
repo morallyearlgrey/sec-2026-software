@@ -32,16 +32,22 @@ scene = ExtResource("5_3kbxf")
 script = ExtResource("2_dw4ip")
 scene = ExtResource("6_ohkjb")
 overrides = {
-"box_color_custom": "Color(1, 1, 1, 0.8666667)",
+"box_color_custom": "Color(1, 1, 1, 1)",
 "box_color_use_global": "false",
-"box_panel": "\"res://Assets/Styles/Textbox Styles/ninepatch_texture.tres\"",
-"box_size": "Vector2(1600, 500)",
-"name_label_box_offset": "Vector2(0, -50)",
-"name_label_custom_font_size": "80.0",
+"box_margin_bottom": "20.0",
+"box_panel": "\"res://Assets/Styles/Textbox Styles/Textbox_Textures/alien_1_stylebox_texture.tres\"",
+"box_size": "Vector2(1300, 300)",
+"name_label_box_modulate": "Color(0.5803922, 0, 1, 0.9098039)",
+"name_label_box_offset": "Vector2(-20, -80)",
+"name_label_box_panel": "\"res://Assets/Styles/Textbox Styles/Textbox_Textures/alien_1_stylebox_texture.tres\"",
+"name_label_box_use_global_color": "false",
+"name_label_custom_font_size": "30.0",
+"name_label_font": "\"res://Assets/Fonts/BitcountSingle-VariableFont_CRSV,ELSH,ELXP,slnt,wght.ttf\"",
 "name_label_use_global_color": "false",
+"name_label_use_global_font": "false",
 "name_label_use_global_font_size": "false",
-"normal_font": "\"res://Assets/Styles/Fonts/SpaceGrotesk-VariableFont_wght.ttf\"",
-"text_size": "60.0",
+"normal_font": "\"res://Assets/Fonts/BitcountSingle-VariableFont_CRSV,ELSH,ELXP,slnt,wght.ttf\"",
+"text_size": "50.0",
 "text_use_global_color": "false",
 "text_use_global_font": "false",
 "text_use_global_size": "false"
@@ -78,4 +84,4 @@ layer_info = {
 "16": SubResource("Resource_16gyk"),
 "17": SubResource("Resource_amq80")
 }
-metadata/_latest_layer = ""
+metadata/_latest_layer = "13"
