@@ -2,7 +2,7 @@ extends Node
 
 # APIClient handles all HTTP communication with the FastAPI server.
 # Endpoints used:
-#   GET  /generate-alien          → alien data dict
+#   GET  /generate-alien          → alien data dict (includes "prompt")
 #   POST /apps/{agent}/users/{uid}/sessions  → create session, returns {id}
 #   POST /run-qa                  → {validity, reason, summary}
 #   POST /run-alien               → {reply}
@@ -50,7 +50,7 @@ func _send(method: int, url: String, body_dict: Dictionary = {}) -> Dictionary:
 
 # ── public API ─────────────────────────────────────────────────────────────────
 
-## GET /generate-alien  →  full alien data dict
+## GET /generate-alien  →  full alien data dict (includes "prompt" key)
 func generate_alien() -> Dictionary:
 	return await _send(HTTPClient.METHOD_GET, BASE_URL + "/generate-alien")
 
@@ -76,11 +76,13 @@ func run_qa(session_id: String, question: String, answer: String) -> Dictionary:
 	return data
 
 ## POST /run-alien  →  {reply: str}
-func run_alien(session_id: String, alien_dialog: String, turn_summary: String) -> String:
+## alien_prompt must be passed so each alien has its own unique personality
+func run_alien(session_id: String, alien_dialog: String, turn_summary: String, alien_prompt: String) -> String:
 	var body = {
-		"session_id":  session_id,
+		"session_id":   session_id,
 		"alien_dialog": alien_dialog,
 		"turn_summary": turn_summary,
+		"alien_prompt": alien_prompt,
 	}
 	var data = await _send(HTTPClient.METHOD_POST, BASE_URL + "/run-alien", body)
 	if data.has("error"):

@@ -6,15 +6,23 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from google.adk.cli.fast_api import get_fast_api_app
+from google.adk.sessions import InMemorySessionService
 
 load_dotenv()
 
 AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PLAYER_ID = "mcdiggity"
 
-# Ensure ai_server/ is always importable (alien_generator.py lives here)
+# Ensure ai_server/ and alien_agent/ are always importable
+alien_agent_path = os.path.join(AGENT_DIR, "alien_agent")
 if AGENT_DIR not in sys.path:
     sys.path.insert(0, AGENT_DIR)
+if alien_agent_path not in sys.path:
+    sys.path.insert(0, alien_agent_path)
+
+# Shared session services — must persist across requests
+_qa_svc    = InMemorySessionService()
+_alien_svc = InMemorySessionService()
 
 app: FastAPI = get_fast_api_app(
     agents_dir=AGENT_DIR,
@@ -32,6 +40,25 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
+def _unwrap_reply(raw: str) -> str:
+    """If the agent echoed back a JSON object, extract the text value from it."""
+    raw = raw.strip()
+    try:
+        obj = json.loads(raw)
+        if isinstance(obj, dict):
+            # Try common keys the agent might use
+            for key in ("alien_dialog", "reply", "response", "message", "text"):
+                if key in obj:
+                    return str(obj[key])
+            # Fallback: return first string value found
+            for v in obj.values():
+                if isinstance(v, str):
+                    return v
+    except Exception:
+        pass
+    return raw  # already plain text
+
+
 class QARequest(BaseModel):
     session_id: str
     question: str
@@ -42,6 +69,7 @@ class AlienRequest(BaseModel):
     session_id: str
     alien_dialog: str
     turn_summary: str
+    alien_prompt: str = ""
 
 
 @app.get("/ping")
@@ -75,11 +103,24 @@ async def generate_alien():
         liked_words  = {w.split()[-1]: 5  for w in likes}
         banned_words = {w.split()[-1]: -3 for w in dislikes}
 
+        prompt = (
+            f"Your name is {name}. You are an alien. Your mood is {mood} and "
+            f"you're an {mbti}. You work as a {situation[0]}, and you are situated in a "
+            f"booth at a market where you are selling {situation[1]}. You enjoy {likes[0]}, "
+            f"{likes[1]}, and {likes[2]}. You hate {dislikes[0]}, {dislikes[1]}, and "
+            f"{dislikes[2]}. You have a maximum dialog of 5 responses before you want to end "
+            f"the conversation. Your greeting is \"{greeting}\". Someone is looking to invite "
+            f"you to the grand opening of their restaurant, but you don't know that yet. All "
+            f"you know is that they approached your booth. "
+            f"Always respond in plain conversational text. Never wrap your response in JSON."
+        )
+
         return {
             "name": name, "mood": mood, "mbti": mbti,
             "situation": situation, "greeting": greeting,
             "likes": likes, "dislikes": dislikes,
             "liked_words": liked_words, "banned_words": banned_words,
+            "prompt": prompt,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -89,10 +130,12 @@ async def generate_alien():
 async def run_qa(req: QARequest):
     import importlib
     from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
     from google.genai import types as genai_types
 
     try:
+        shared_path = os.path.join(AGENT_DIR, "shared")
+        if shared_path not in sys.path:
+            sys.path.insert(0, shared_path)
         qa_path = os.path.join(AGENT_DIR, "qa_agent")
         if qa_path not in sys.path:
             sys.path.insert(0, qa_path)
@@ -102,28 +145,30 @@ async def run_qa(req: QARequest):
         qa_mod = importlib.import_module("agent")
         agent  = qa_mod.root_agent
 
-        svc    = InMemorySessionService()
-        runner = Runner(agent=agent, app_name="qa_agent", session_service=svc)
+        runner = Runner(agent=agent, app_name="qa_agent", session_service=_qa_svc)
 
-        try:
-            svc.get_session(app_name="qa_agent", user_id=PLAYER_ID,
-                            session_id=req.session_id)
-        except Exception:
-            svc.create_session(app_name="qa_agent", user_id=PLAYER_ID,
-                               session_id=req.session_id)
+        existing = await _qa_svc.get_session(app_name="qa_agent", user_id=PLAYER_ID,
+                                             session_id=req.session_id)
+        if existing is None:
+            await _qa_svc.create_session(app_name="qa_agent", user_id=PLAYER_ID,
+                                         session_id=req.session_id)
 
-        msg = f'{{"question": {json.dumps(req.question)}}}\n{{"answer": {json.dumps(req.answer)}}}'
+        msg = f'Alien said: {req.question}\nPlayer responded: {req.answer}'
         content = genai_types.Content(
             role="user", parts=[genai_types.Part(text=msg)]
         )
 
         raw = ""
-        for event in runner.run(user_id=PLAYER_ID,
-                                session_id=req.session_id,
-                                new_message=content):
-            if event.is_final_response():
-                raw = event.content.parts[0].text
-                break
+        async for event in runner.run_async(user_id=PLAYER_ID,
+                                            session_id=req.session_id,
+                                            new_message=content):
+            if event.is_final_response() and event.content and event.content.parts:
+                raw = event.content.parts[0].text or ""
+                if raw:
+                    break
+
+        if not raw:
+            return {"validity": False, "reason": "No response from QA agent", "summary": ""}
 
         return json.loads(_strip_fences(raw))
 
@@ -133,47 +178,57 @@ async def run_qa(req: QARequest):
 
 @app.post("/run-alien")
 async def run_alien(req: AlienRequest):
-    import importlib
     from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
+    from google.adk.agents import Agent
     from google.genai import types as genai_types
 
     try:
-        alien_path = os.path.join(AGENT_DIR, "alien_agent")
-        if alien_path not in sys.path:
-            sys.path.insert(0, alien_path)
+        if not req.alien_prompt:
+            raise HTTPException(status_code=400, detail="alien_prompt is required")
 
-        if "agent" in sys.modules:
-            del sys.modules["agent"]
-        alien_mod = importlib.import_module("agent")
-        agent     = alien_mod.root_agent
+        agent = Agent(
+            name="alien_agent",
+            model="gemini-2.5-flash",
+            instruction=req.alien_prompt,
+            tools=[],
+        )
 
-        svc    = InMemorySessionService()
-        runner = Runner(agent=agent, app_name="alien_agent", session_service=svc)
+        runner = Runner(agent=agent, app_name="alien_agent", session_service=_alien_svc)
 
-        try:
-            svc.get_session(app_name="alien_agent", user_id=PLAYER_ID,
-                            session_id=req.session_id)
-        except Exception:
-            svc.create_session(app_name="alien_agent", user_id=PLAYER_ID,
-                               session_id=req.session_id)
+        existing = await _alien_svc.get_session(app_name="alien_agent", user_id=PLAYER_ID,
+                                                session_id=req.session_id)
+        if existing is None:
+            await _alien_svc.create_session(app_name="alien_agent", user_id=PLAYER_ID,
+                                            session_id=req.session_id)
 
-        msg = (f'{{"alien_dialog": {json.dumps(req.alien_dialog)}}}\n'
-               f'{{"turn_summary": {json.dumps(req.turn_summary)}}}')
+        # Send as plain conversation, not JSON — prevents the agent echoing JSON back
+        if req.turn_summary == "(conversation start)":
+            msg = req.alien_dialog  # just the greeting on first turn
+        else:
+            msg = f'The player said: {req.turn_summary}'
+
         content = genai_types.Content(
             role="user", parts=[genai_types.Part(text=msg)]
         )
 
         raw = ""
-        for event in runner.run(user_id=PLAYER_ID,
-                                session_id=req.session_id,
-                                new_message=content):
-            if event.is_final_response():
-                raw = event.content.parts[0].text
-                break
+        async for event in runner.run_async(user_id=PLAYER_ID,
+                                            session_id=req.session_id,
+                                            new_message=content):
+            if event.is_final_response() and event.content and event.content.parts:
+                raw = event.content.parts[0].text or ""
+                if raw:
+                    break
 
-        return {"reply": raw}
+        if not raw:
+            raise HTTPException(status_code=500, detail="No response from alien agent")
 
+        # Unwrap if agent returned JSON instead of plain text
+        reply = _unwrap_reply(raw)
+        return {"reply": reply}
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

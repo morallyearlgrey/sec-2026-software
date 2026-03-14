@@ -5,7 +5,7 @@ alien = AlienGenerator()
 
 root_agent = Agent(
     name="alien_agent",
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     instruction=f"{alien.get_prompt()}",
     tools=[]
 )

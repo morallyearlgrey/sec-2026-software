@@ -3,7 +3,7 @@ from shared.qa_tools import prechecks
 
 root_agent = Agent(
     name="qa_agent",
-    model="gemini-2.0-flash",
+    model="gemini-2.5-flash",
     description="Ensures that all prompts received by the user aren't just jumbled words and are actually coherent",
     instruction="""For context, this is a game where a user is attempting to convince as many aliens as possible to come to the grand opening of their restaurant. The game works by allowing dialogue back and forth between the current alien NPC and the player. 
 
