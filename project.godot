@@ -43,6 +43,7 @@ directories/dtl_directory={
 "Timelines/second_alien": "res://Assets/Scenes/Timelines/second_alien.dtl",
 "eighth_alien": "res://Assets/Scenes/Timelines/eighth_alien.dtl",
 "fifth_alien": "res://Assets/Scenes/Timelines/fifth_alien.dtl",
+"first_alien": "res://Assets/Scripts/first_alien.dtl",
 "fourth_alien": "res://Assets/Scenes/Timelines/fourth_alien.dtl",
 "seventh_alien": "res://Assets/Scenes/Timelines/seventh_alien.dtl",
 "sixth_alien": "res://Assets/Scenes/Timelines/sixth_alien.dtl",
@@ -89,7 +90,14 @@ audio/channel_defaults={
 }
 }
 glossary/default_case_sensitive=true
-variables={}
+variables={
+"alien_image": "",
+"alien_name": "",
+"alien_response": ""
+}
+history/simple_history_enabled=false
+history/full_history_enabled=false
+history/visited_event_history_enabled=false
 
 [display]
 
