@@ -20,9 +20,9 @@ config/icon="res://Assets/Characters/icon.svg"
 Dialogic="*uid://ds2q0uclmolvu"
 DialogueController="*uid://bawb1w8s040b5"
 Global="*uid://owhk806xxj6f"
+Map="*uid://bibagfu4vyltt"
 PointCalculator="*uid://dot1ocsuktmq1"
 APIClient="*uid://bv8aueddwamck"
-ButtonController="*res://Assets/Scripts/ButtonController.gd"
 
 [dialogic]
 
@@ -41,11 +41,11 @@ directories/dtl_directory={
 "first_alien": "res://Assets/Scripts/first_alien.dtl"
 }
 layout/style_directory={
-"": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres",
-"Alien1_Textbox": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres"
+"Alien1_Textbox": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres",
+"Alien8_Textbook": "res://Assets/Styles/Textbox Styles/Alien8_Textbook.tres"
 }
-layout/style_list=["res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres"]
-layout/default_style="res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres"
+layout/style_list=["res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres", "res://Assets/Styles/Textbox Styles/Alien8_Textbook.tres"]
+layout/default_style="res://Assets/Backgrounds/Alien1_Textbox.tres"
 text/letter_speed=0.01
 text/initial_text_reveal_skippable=true
 text/text_reveal_skip_delay=0.1
@@ -83,14 +83,15 @@ audio/channel_defaults={
 glossary/default_case_sensitive=true
 variables={
 "alien_image": "",
+"alien_input": "",
 "alien_name": "",
 "alien_response": "",
-"game_over": false,
+"game_over": "",
 "player_input": "",
 "qa_reason": "",
-"timed_out": false,
-"turn_number": 0,
-"turn_valid": false
+"timed_out": "",
+"turn_number": "",
+"turn_valid": ""
 }
 history/simple_history_enabled=false
 history/full_history_enabled=false

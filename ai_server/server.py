@@ -8,8 +8,9 @@ from google.adk.cli.fast_api import get_fast_api_app
 
 load_dotenv()
 
-AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
+AGENT_DIR   = os.path.dirname(os.path.abspath(__file__))
 SESSION_DB_URL = f"sqlite:///{os.path.join(AGENT_DIR, 'sessions.db')}"
+PLAYER_ID   = "mcdiggity"   # was missing — caused NameError in /run-alien
 
 app: FastAPI = get_fast_api_app(
     agents_dir=AGENT_DIR,
@@ -17,19 +18,6 @@ app: FastAPI = get_fast_api_app(
     allow_origins=["*"],
     web=True,
 )
-
-# ── helpers ────────────────────────────────────────────────────────────────────
-
-def _first_model_text(adk_response) -> str:
-    """Pull the first model-role text part out of an ADK runner response."""
-    if isinstance(adk_response, list):
-        for event in adk_response:
-            content = event.get("content", {})
-            if content.get("role") == "model":
-                for part in content.get("parts", []):
-                    if "text" in part:
-                        return part["text"]
-    return ""
 
 
 def _strip_fences(text: str) -> str:
@@ -41,8 +29,6 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
-# ── request models ─────────────────────────────────────────────────────────────
-
 class QARequest(BaseModel):
     session_id: str
     question: str
@@ -51,11 +37,9 @@ class QARequest(BaseModel):
 
 class AlienRequest(BaseModel):
     session_id: str
-    alien_dialog: str      # alien's latest line
-    turn_summary: str      # QA summary of what the player said
+    alien_dialog: str
+    turn_summary: str
 
-
-# ── routes ─────────────────────────────────────────────────────────────────────
 
 @app.get("/ping")
 async def ping():
@@ -74,38 +58,25 @@ async def list_agents():
 
 @app.get("/generate-alien")
 async def generate_alien():
-    """
-    Calls alien_generator directly (no ADK session needed) and returns a JSON
-    dict describing the newly generated alien.
-    """
     try:
         from alien_generator import AlienGenerator
-        gen = AlienGenerator.__new__(AlienGenerator)  # skip __init__ print
-        AlienGenerator.__init__(gen)
+        gen      = AlienGenerator()
+        name     = gen.get_random_name()
+        mood     = gen.get_random_mood()
+        mbti     = gen.get_random_mbti()
+        situation= gen.get_random_market_booth()
+        greeting = gen.get_random_greeting()
+        likes    = gen.get_random_likes()
+        dislikes = gen.get_random_dislikes(likes)
 
-        name      = gen.get_random_name()
-        mood      = gen.get_random_mood()
-        mbti      = gen.get_random_mbti()
-        situation = gen.get_random_market_booth()
-        greeting  = gen.get_random_greeting()
-        likes     = gen.get_random_likes()
-        dislikes  = gen.get_random_dislikes(likes)
-
-        # Build liked_words / banned_words from likes/dislikes for the point
-        # calculator.  Values are intentionally small so turns matter.
-        liked_words  = {w.split()[-1]: 5 for w in likes}
+        liked_words  = {w.split()[-1]: 5  for w in likes}
         banned_words = {w.split()[-1]: -3 for w in dislikes}
 
         return {
-            "name":        name,
-            "mood":        mood,
-            "mbti":        mbti,
-            "situation":   situation,
-            "greeting":    greeting,
-            "likes":       likes,
-            "dislikes":    dislikes,
-            "liked_words": liked_words,
-            "banned_words": banned_words,
+            "name": name, "mood": mood, "mbti": mbti,
+            "situation": situation, "greeting": greeting,
+            "likes": likes, "dislikes": dislikes,
+            "liked_words": liked_words, "banned_words": banned_words,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -113,45 +84,49 @@ async def generate_alien():
 
 @app.post("/run-qa")
 async def run_qa(req: QARequest):
-    """
-    Run the qa_agent synchronously and return a parsed JSON validity dict.
-    Expected response shape: {"validity": bool, "reason": str, "summary": str}
-    """
+    import importlib, sys
     from google.adk.runners import Runner
     from google.adk.sessions import DatabaseSessionService
-    import importlib, sys
+    from google.genai import types as genai_types
 
     try:
-        # Dynamically load the qa_agent module
-        qa_mod_path = os.path.join(AGENT_DIR, "qa_agent")
-        if qa_mod_path not in sys.path:
-            sys.path.insert(0, qa_mod_path)
+        if AGENT_DIR not in sys.path:          # ← add this first
+            sys.path.insert(0, AGENT_DIR)
+        qa_path = os.path.join(AGENT_DIR, "qa_agent")
+        if qa_path not in sys.path:
+            sys.path.insert(0, qa_path)
 
+        # Force reload so we always get the right agent module
+        if "agent" in sys.modules:
+            del sys.modules["agent"]
         qa_mod = importlib.import_module("agent")
         agent  = qa_mod.root_agent
 
-        svc     = DatabaseSessionService(SESSION_DB_URL)
-        runner  = Runner(agent=agent, app_name="qa_agent", session_service=svc)
-        session = svc.get_session(app_name="qa_agent", user_id="server",
-                                  session_id=req.session_id)
+        svc    = DatabaseSessionService(SESSION_DB_URL)
+        runner = Runner(agent=agent, app_name="qa_agent", session_service=svc)
 
-        from google.genai import types as genai_types
-        message = f'{{"question": "{req.question}"}}\n{{"answer": "{req.answer}"}}'
+        # Ensure session exists
+        try:
+            svc.get_session(app_name="qa_agent", user_id=PLAYER_ID,
+                            session_id=req.session_id)
+        except Exception:
+            svc.create_session(app_name="qa_agent", user_id=PLAYER_ID,
+                               session_id=req.session_id)
+
+        msg = f'{{"question": {json.dumps(req.question)}}}\n{{"answer": {json.dumps(req.answer)}}}'
         content = genai_types.Content(
-            role="user",
-            parts=[genai_types.Part(text=message)]
+            role="user", parts=[genai_types.Part(text=msg)]
         )
 
-        raw_text = ""
-        for event in runner.run(user_id="server",
+        raw = ""
+        for event in runner.run(user_id=PLAYER_ID,
                                 session_id=req.session_id,
                                 new_message=content):
             if event.is_final_response():
-                raw_text = event.content.parts[0].text
+                raw = event.content.parts[0].text
                 break
 
-        parsed = json.loads(_strip_fences(raw_text))
-        return parsed
+        return json.loads(_strip_fences(raw))
 
     except Exception as e:
         return {"validity": False, "reason": str(e), "summary": ""}
@@ -159,43 +134,47 @@ async def run_qa(req: QARequest):
 
 @app.post("/run-alien")
 async def run_alien(req: AlienRequest):
-    """
-    Send the player's (QA-validated) turn summary to the alien_agent and get
-    the alien's next dialogue line.
-    Returns: {"reply": str}
-    """
+    import importlib, sys
     from google.adk.runners import Runner
     from google.adk.sessions import DatabaseSessionService
-    import importlib, sys
+    from google.genai import types as genai_types
 
     try:
-        alien_mod_path = os.path.join(AGENT_DIR, "alien_agent")
-        if alien_mod_path not in sys.path:
-            sys.path.insert(0, alien_mod_path)
-
+        if AGENT_DIR not in sys.path:          # ← add this first
+            sys.path.insert(0, AGENT_DIR)
+        alien_path = os.path.join(AGENT_DIR, "alien_agent")
+        if alien_path not in sys.path:
+            sys.path.insert(0, alien_path)
+        if "agent" in sys.modules:
+            del sys.modules["agent"]
         alien_mod = importlib.import_module("agent")
         agent     = alien_mod.root_agent
 
         svc    = DatabaseSessionService(SESSION_DB_URL)
         runner = Runner(agent=agent, app_name="alien_agent", session_service=svc)
 
-        from google.genai import types as genai_types
-        message = (f'{{"alien_dialog": "{req.alien_dialog}"}}\n'
-                   f'{{"turn_summary": "{req.turn_summary}"}}')
+        try:
+            svc.get_session(app_name="alien_agent", user_id=PLAYER_ID,
+                            session_id=req.session_id)
+        except Exception:
+            svc.create_session(app_name="alien_agent", user_id=PLAYER_ID,
+                               session_id=req.session_id)
+
+        msg = (f'{{"alien_dialog": {json.dumps(req.alien_dialog)}}}\n'
+               f'{{"turn_summary": {json.dumps(req.turn_summary)}}}')
         content = genai_types.Content(
-            role="user",
-            parts=[genai_types.Part(text=message)]
+            role="user", parts=[genai_types.Part(text=msg)]
         )
 
-        raw_text = ""
+        raw = ""
         for event in runner.run(user_id=PLAYER_ID,
                                 session_id=req.session_id,
                                 new_message=content):
             if event.is_final_response():
-                raw_text = event.content.parts[0].text
+                raw = event.content.parts[0].text
                 break
 
-        return {"reply": raw_text}
+        return {"reply": raw}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

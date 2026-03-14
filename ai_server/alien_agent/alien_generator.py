@@ -1,19 +1,27 @@
 import random
+import sys
+import os
+
+# Ensure the directory containing this file is always on sys.path
+_DIR = os.path.dirname(os.path.abspath(__file__))
+if _DIR not in sys.path:
+    sys.path.insert(0, _DIR)
+
 
 class AlienGenerator:
-    
+
     def __init__(self):
         pass  # removed auto-print; server calls methods directly
 
     def get_prompt(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
+        name      = self.get_random_name()
+        mood      = self.get_random_mood()
+        mbti      = self.get_random_mbti()
         situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
-        
+        greeting  = self.get_random_greeting()
+        likes     = self.get_random_likes()
+        dislikes  = self.get_random_dislikes(likes)
+
         return (
             f"You name is {name}. You are an alien. Your mood is {mood} and "
             f"you're an {mbti}. You work as a {situation[0]}, and you are situated in a "
@@ -26,15 +34,14 @@ class AlienGenerator:
         )
 
     def get_dict(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
+        name      = self.get_random_name()
+        mood      = self.get_random_mood()
+        mbti      = self.get_random_mbti()
         situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
-        
-        # Fixed: was using set literal syntax which is invalid for a dict
+        greeting  = self.get_random_greeting()
+        likes     = self.get_random_likes()
+        dislikes  = self.get_random_dislikes(likes)
+
         return {
             "name":      name,
             "mood":      mood,
@@ -50,7 +57,7 @@ class AlienGenerator:
 
     def get_random_mood(self):
         return random.choice(self.moods)
-            
+
     def get_random_mbti(self):
         return random.choice(self.mbti)
 
@@ -59,10 +66,10 @@ class AlienGenerator:
 
     def get_random_greeting(self):
         return random.choice(self.greetings)
-    
+
     def get_random_likes(self):
         return random.sample(self.likes, 3)
-    
+
     def get_random_dislikes(self, likes):
         pool = [x for x in self.likes if x not in likes]
         return random.sample(pool, min(3, len(pool)))
@@ -124,20 +131,20 @@ class AlienGenerator:
     ]
 
     mbti = [
-        "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj", 
+        "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj",
         "esfp", "isfp", "entj", "intj", "enfp", "infp", "estj", "istj"
     ]
 
     moods = [
-        "Overexcited", "Hyper", "Frantic", "Anxious", "Restless", 
+        "Overexcited", "Hyper", "Frantic", "Anxious", "Restless",
         "Jittery", "Eager", "Rowdy", "Aggressive", "Panicked",
-        "Chill", "Sleepy", "Lazy", "Melancholic", "Serene", 
+        "Chill", "Sleepy", "Lazy", "Melancholic", "Serene",
         "Dull", "Dreamy", "Lethargic", "Stoned", "Zoned-out",
-        "Impatient", "Grumpy", "Cranky", "Bitter", "Sullen", 
+        "Impatient", "Grumpy", "Cranky", "Bitter", "Sullen",
         "Bossy", "Stubborn", "Sarcastic", "Irritable", "Defiant",
-        "Bubbly", "Cheerful", "Gentle", "Polite", "Curious", 
+        "Bubbly", "Cheerful", "Gentle", "Polite", "Curious",
         "Friendly", "Giddy", "Awestruck", "Playful", "Kind",
-        "Shy", "Timid", "Awkward", "Nervous", "Quiet", 
+        "Shy", "Timid", "Awkward", "Nervous", "Quiet",
         "Fidgety", "Suspicious", "Hesitant", "Stoic", "Gloomy",
         "Serious", "Brainy", "Focused", "Puzzled", "Contemplative",
         "Formal", "Strict", "Arrogant", "Confident", "Mischievous"
@@ -175,7 +182,7 @@ class AlienGenerator:
         "Is that a smile or a threat? Either way, welcome!",
         "Blessings upon your hive. What can I do for you?"
     ]
-    
+
     likes = [
         "culinary arts",
         "the game zorx",
