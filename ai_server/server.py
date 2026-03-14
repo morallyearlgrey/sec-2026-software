@@ -46,17 +46,38 @@ def _unwrap_reply(raw: str) -> str:
     try:
         obj = json.loads(raw)
         if isinstance(obj, dict):
-            # Try common keys the agent might use
             for key in ("alien_dialog", "reply", "response", "message", "text"):
                 if key in obj:
                     return str(obj[key])
-            # Fallback: return first string value found
             for v in obj.values():
                 if isinstance(v, str):
                     return v
     except Exception:
         pass
-    return raw  # already plain text
+    return raw
+
+
+def _parse_qa_response(raw: str) -> dict:
+    """Robustly parse QA agent response — handles JSON, fenced JSON, or plain text."""
+    cleaned = _strip_fences(raw)
+    # Try direct JSON parse
+    try:
+        result = json.loads(cleaned)
+        if isinstance(result, dict) and "validity" in result:
+            return result
+    except Exception:
+        pass
+    # Try to find a JSON object inside the text
+    try:
+        start = cleaned.index("{")
+        end   = cleaned.rindex("}") + 1
+        result = json.loads(cleaned[start:end])
+        if isinstance(result, dict) and "validity" in result:
+            return result
+    except Exception:
+        pass
+    # Fallback — treat whole response as a reason for failure
+    return {"validity": False, "reason": raw[:200], "summary": ""}
 
 
 class QARequest(BaseModel):
@@ -153,7 +174,12 @@ async def run_qa(req: QARequest):
             await _qa_svc.create_session(app_name="qa_agent", user_id=PLAYER_ID,
                                          session_id=req.session_id)
 
-        msg = f'Alien said: {req.question}\nPlayer responded: {req.answer}'
+        # Pass question and answer separately so prechecks tool gets just the answer
+        msg = (
+            f"Alien's question: {req.question}\n"
+            f"Player's answer: {req.answer}\n\n"
+            f"Call prechecks with the player's answer: {req.answer}"
+        )
         content = genai_types.Content(
             role="user", parts=[genai_types.Part(text=msg)]
         )
@@ -170,7 +196,7 @@ async def run_qa(req: QARequest):
         if not raw:
             return {"validity": False, "reason": "No response from QA agent", "summary": ""}
 
-        return json.loads(_strip_fences(raw))
+        return _parse_qa_response(raw)
 
     except Exception as e:
         return {"validity": False, "reason": str(e), "summary": ""}
@@ -201,9 +227,8 @@ async def run_alien(req: AlienRequest):
             await _alien_svc.create_session(app_name="alien_agent", user_id=PLAYER_ID,
                                             session_id=req.session_id)
 
-        # Send as plain conversation, not JSON — prevents the agent echoing JSON back
         if req.turn_summary == "(conversation start)":
-            msg = req.alien_dialog  # just the greeting on first turn
+            msg = req.alien_dialog
         else:
             msg = f'The player said: {req.turn_summary}'
 
@@ -223,7 +248,6 @@ async def run_alien(req: AlienRequest):
         if not raw:
             raise HTTPException(status_code=500, detail="No response from alien agent")
 
-        # Unwrap if agent returned JSON instead of plain text
         reply = _unwrap_reply(raw)
         return {"reply": reply}
 
