@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b0mp0jb0qpudt"]
 
 [ext_resource type="Script" uid="uid://f5ij3k3c3jx2" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
-[ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_7huei"]
+[ext_resource type="FontFile" uid="uid://dlcjiu0kq38lx" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_7huei"]
 [ext_resource type="Texture2D" uid="uid://ds03nv8e7phmu" path="res://Assets/Backgrounds/space background.png" id="2_a33en"]
 [ext_resource type="Texture2D" uid="uid://dw6lgyjwps0hq" path="res://Assets/Backgrounds/button.png" id="3_qnvjd"]
 [ext_resource type="Texture2D" uid="uid://ckgc52qmo6l35" path="res://Assets/Backgrounds/title1.png" id="4_qnvjd"]

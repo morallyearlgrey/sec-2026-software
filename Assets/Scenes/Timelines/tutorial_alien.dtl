@@ -1,0 +1,12 @@
+[background arg="res://Assets/Backgrounds/tutorial_background.png" fade="0.0"]
+join tutorial_alien center
+tutorial_alien: Hey there! I heard you were opening up a restaurant soon!
+tutorial_alien: Have you started advertising it yet?
+tutorial_alien: No?
+tutorial_alien: Okay, why don't you pitch it to me?
+[text_input var="input"]
+tutorial_alien: Hmm, not bad but I think you really gotta cater to my interests
+tutorial_alien: Me personally, I'm a really big slimeball fan, got tickets to see the Interstellar Cup and everything, so why not include that?
+[text_input var="input"]
+tutorial_alien: Yeah! Much better!
+tutorial_alien: Now get out there and start advertisin'

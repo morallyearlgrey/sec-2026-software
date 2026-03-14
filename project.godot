@@ -34,7 +34,8 @@ directories/dch_directory={
 "alien_3": "res://Assets/Characters/alien_3.dch",
 "alien_4": "res://Assets/Characters/alien_4.dch",
 "alien_5": "res://Assets/Characters/alien_5.dch",
-"alien_6": "res://Assets/Characters/alien_6.dch"
+"alien_6": "res://Assets/Characters/alien_6.dch",
+"tutorial_alien": "res://Assets/Characters/tutorial_alien.dch"
 }
 directories/dtl_directory={
 "Timelines/first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
@@ -85,7 +86,8 @@ glossary/default_case_sensitive=true
 variables={
 "alien_image": "",
 "alien_name": "",
-"alien_response": ""
+"alien_response": "",
+"input": ""
 }
 history/simple_history_enabled=false
 history/full_history_enabled=false

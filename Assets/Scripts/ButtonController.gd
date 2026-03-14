@@ -1,5 +1,8 @@
 extends Node
 
+func _ready() -> void:
+	Dialogic.start("tutorial_alien")
+	
 func _on_first_button_pressed() -> void:
 	if Global.button_flags[0] == true:
 		pass
