@@ -1,14 +1,11 @@
 [gd_scene format=3 uid="uid://b0mp0jb0qpudt"]
 
 [ext_resource type="Script" uid="uid://f5ij3k3c3jx2" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
-[ext_resource type="Texture2D" uid="uid://dqpjpnf1gpi0e" path="res://Assets/Backgrounds/TitleScreen.jpg" id="2_vu4bj"]
 [ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_7huei"]
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vu4bj"]
-load_path = "res://.godot/imported/TitleScreen.jpg-9713e12cef3d7a9528af919cdb161bf1.ctex"
+[ext_resource type="Texture2D" uid="uid://ds03nv8e7phmu" path="res://Assets/Backgrounds/space background.png" id="2_a33en"]
+[ext_resource type="Texture2D" uid="uid://ckgc52qmo6l35" path="res://Assets/Backgrounds/title1.png" id="4_qnvjd"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_a33en"]
-load_path = "res://.godot/imported/Logo.png-87956afb1a6b0ed68e25568d576a32f8.ctex"
 
 [node name="TitleScreen" type="Control" unique_id=346713926]
 layout_mode = 3
@@ -25,8 +22,8 @@ offset_left = -18.0
 offset_top = -10.0
 offset_right = 1941.0
 offset_bottom = 1100.0
-texture = SubResource("CompressedTexture2D_vu4bj")
-expand_mode = 1
+texture = ExtResource("2_a33en")
+expand_mode = 3
 
 [node name="Logo" type="TextureRect" parent="." unique_id=475817563]
 layout_mode = 0
@@ -67,5 +64,9 @@ theme_override_font_sizes/font_size = 64
 text = "Start Game"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Title1" type="Sprite2D" parent="." unique_id=809488803]
+position = Vector2(963, 481)
+texture = ExtResource("4_qnvjd")
 
 [connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
