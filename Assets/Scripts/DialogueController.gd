@@ -2,49 +2,51 @@ extends Node
 
 # ── constants ──────────────────────────────────────────────────────────────────
 const MAX_TURNS     = 5
-const INPUT_TIMEOUT = 30.0   # seconds before auto-submit
+const INPUT_TIMEOUT = 30.0
 
 # ── state ──────────────────────────────────────────────────────────────────────
-var _alien_idx:  int    = -1
-var _turn:       int    = 0
-var _timer:      Timer  = null
-var _timed_out:  bool   = false
+var _alien_idx: int   = -1
+var _turn:      int   = 0
+var _timer:     Timer = null
+var _input_box: Node = null   # reference to the custom LineEdit overlay
 
-# Dialogic signal handles (stored so we can disconnect later)
-var _timeline_end_handle = null
+# ── signals ────────────────────────────────────────────────────────────────────
+# Emitted when the controller finishes async work so the timeline can resume.
+signal turn_resolved
 
-# ── called by ButtonController when a map pin is clicked ──────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# PUBLIC — called by ButtonController
+# ══════════════════════════════════════════════════════════════════════════════
 
 func start_alien_encounter(alien_idx: int) -> void:
 	_alien_idx = alien_idx
 	_turn      = 0
 
-	# 1. Generate the alien data from the server
+	# 1. Generate alien
 	var alien_data: Dictionary = await APIClient.generate_alien()
 	if alien_data.has("error") or alien_data.is_empty():
 		push_error("DialogueController: generate_alien failed")
 		return
 
-	# 2. Create ADK sessions for both agents
+	# 2. Create sessions
 	Global.alien_session_id = await APIClient.create_session("alien_agent")
 	Global.qa_session_id    = await APIClient.create_session("qa_agent")
 
-	# 3. Store alien in Global and push Dialogic vars
+	# 3. Register + set Dialogic vars
 	Global.register_alien(alien_idx, alien_data)
 	Global.cur_alien_idx = alien_idx
 
-	# 4. Build the alien's opening line by sending the greeting to the agent
-	#    so the session has context.  We pass an empty turn_summary for turn 0.
-	var intro_reply: String = await APIClient.run_alien(
+	# 4. Get opening line from alien agent
+	var intro: String = await APIClient.run_alien(
 		Global.alien_session_id,
 		alien_data.get("greeting", "Hello."),
 		"(conversation start)"
 	)
-	if intro_reply == "":
-		intro_reply = alien_data.get("greeting", "Hello.")
+	if intro == "":
+		intro = alien_data.get("greeting", "Hello.")
 
-	Global.Aliens[alien_idx]["alien_response"] = intro_reply
-	Dialogic.VAR.set("alien_response", intro_reply)
+	Global.Aliens[alien_idx]["alien_response"] = intro
+	Dialogic.VAR.set("alien_response", intro)
 	Dialogic.VAR.set("alien_name",     alien_data.get("name", "???"))
 	Dialogic.VAR.set("alien_image",    Global.Aliens[alien_idx]["src"])
 	Dialogic.VAR.set("player_input",   "")
@@ -52,109 +54,178 @@ func start_alien_encounter(alien_idx: int) -> void:
 	Dialogic.VAR.set("qa_reason",      "")
 	Dialogic.VAR.set("turn_number",    0)
 	Dialogic.VAR.set("game_over",      false)
+	Dialogic.VAR.set("timed_out",      false)
 
-	# 5. Kick off the single shared timeline
+	# 5. Start timeline
 	Dialogic.start("alien_encounter")
 
 
-# ── called from the timeline via `do DialogueController.submit_player_input()` ─
+# ══════════════════════════════════════════════════════════════════════════════
+# PUBLIC — called from timeline via `do DialogueController.show_input()`
+# These must be non-async (no await) because Dialogic's `do` is synchronous.
+# ══════════════════════════════════════════════════════════════════════════════
 
-## The timeline calls this after the player fills in the TextInput node.
-## The Dialogic TextInput layer writes to Dialogic.VAR["player_input"].
-func submit_player_input() -> void:
-	# Stop any running timer immediately
-	if _timer != null and not _timer.is_stopped():
-		_timer.stop()
+## Called by the timeline to show the input box and start the 30s timer.
+## The timeline immediately continues past this `do` call, then hits a
+## `wait_for_signal` event that blocks until `turn_resolved` fires.
+func show_input() -> void:
+	Dialogic.VAR.set("player_input", "")
+	Dialogic.VAR.set("timed_out",    false)
+	_show_input_overlay()
+	_start_timer()
 
-	var player_text: String = Dialogic.VAR.get("player_input")
-	await _process_turn(player_text)
+
+## Called by the input box's Submit button (connected in _show_input_overlay).
+func on_player_submitted() -> void:
+	_stop_timer()
+	var text: String = _get_input_text()
+	_hide_input_overlay()
+	# Kick off the async pipeline without awaiting it here —
+	# _process_turn will emit turn_resolved when done.
+	_process_turn.call_deferred(text)
 
 
-# ── timer ──────────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# PRIVATE — timer
+# ══════════════════════════════════════════════════════════════════════════════
 
-func _start_input_timer() -> void:
+func _start_timer() -> void:
 	if _timer == null:
 		_timer = Timer.new()
 		_timer.one_shot = true
 		add_child(_timer)
-		_timer.timeout.connect(_on_input_timeout)
-
-	_timed_out = false
+		_timer.timeout.connect(_on_timeout)
 	_timer.start(INPUT_TIMEOUT)
 
 
-func _on_input_timeout() -> void:
-	_timed_out = true
-	# Auto-submit whatever the player has typed so far
-	var player_text: String = Dialogic.VAR.get("player_input")
-	# Signal the timeline to stop waiting and proceed
+func _stop_timer() -> void:
+	if _timer != null and not _timer.is_stopped():
+		_timer.stop()
+
+
+func _on_timeout() -> void:
+	var text: String = _get_input_text()
+	_hide_input_overlay()
 	Dialogic.VAR.set("timed_out", true)
-	await _process_turn(player_text)
+	_process_turn.call_deferred(text)
 
 
-# ── core turn pipeline ─────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# PRIVATE — input overlay
+# We build a simple LineEdit + Button overlay and attach it to the Dialogic
+# layout so it sits on top of the textbox.
+# ══════════════════════════════════════════════════════════════════════════════
+
+func _show_input_overlay() -> void:
+	if _input_box != null:
+		_input_box.show()
+
+		var le: LineEdit = _input_box.get_node("PanelContainer/HBoxContainer/LineEdit")
+		if le:
+			le.text = ""
+			le.grab_focus()
+
+		return
+
+	# Build the overlay once
+	var canvas := CanvasLayer.new()
+	canvas.layer = 10
+	canvas.name  = "InputOverlay"
+	get_tree().root.add_child(canvas)
+
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	panel.offset_top    = -160.0
+	panel.offset_bottom = -10.0
+	panel.offset_left   = 160.0
+	panel.offset_right  = -160.0
+	canvas.add_child(panel)
+
+	var hbox := HBoxContainer.new()
+	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_child(hbox)
+
+	var le := LineEdit.new()
+	le.name                     = "LineEdit"
+	le.placeholder_text         = "Type your response here… (30 seconds)"
+	le.size_flags_horizontal    = Control.SIZE_EXPAND_FILL
+	le.custom_minimum_size      = Vector2(0, 60)
+	hbox.add_child(le)
+
+	var btn := Button.new()
+	btn.text                 = "Submit"
+	btn.custom_minimum_size  = Vector2(140, 60)
+	hbox.add_child(btn)
+
+	# Connect submit via button click AND Enter key
+	btn.pressed.connect(on_player_submitted)
+	le.text_submitted.connect(func(_t): on_player_submitted())
+
+	_input_box = canvas
+	le.grab_focus()
+
+
+func _hide_input_overlay() -> void:
+	if _input_box != null:
+		_input_box.hide()
+
+
+func _get_input_text() -> String:
+	if _input_box == null:
+		return Dialogic.VAR.get("player_input")
+	var panel = _input_box.get_child(0)           # PanelContainer
+	var hbox  = panel.get_child(0)                # HBoxContainer
+	var le: LineEdit = hbox.get_child(0)          # LineEdit
+	return le.text.strip_edges()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PRIVATE — core pipeline (async, driven by call_deferred from show_input path)
+# ══════════════════════════════════════════════════════════════════════════════
 
 func _process_turn(player_text: String) -> void:
 	var alien_line: String = Global.Aliens[_alien_idx].get("alien_response", "")
 
-	# ── QA check ────────────────────────────────────────────────────────────
-	var qa_result: Dictionary = await APIClient.run_qa(
-		Global.qa_session_id,
-		alien_line,
-		player_text
+	# ── QA ──────────────────────────────────────────────────────────────────
+	var qa: Dictionary = await APIClient.run_qa(
+		Global.qa_session_id, alien_line, player_text
 	)
 
-	var is_valid: bool   = qa_result.get("validity", false)
-	var reason:   String = qa_result.get("reason",   "Invalid response.")
-	var summary:  String = qa_result.get("summary",  player_text)
+	var is_valid: bool   = qa.get("validity", false)
+	var reason:   String = qa.get("reason",   "That response wasn't quite right.")
+	var summary:  String = qa.get("summary",  player_text)
 
 	if not is_valid:
-		# Tell the timeline to re-prompt the player with the reason
 		Dialogic.VAR.set("turn_valid", false)
 		Dialogic.VAR.set("qa_reason",  reason)
-		# Restart the timer for the re-prompt
-		_start_input_timer()
+		# Resume the timeline (it will show the rejection line, then loop back
+		# to show_input which re-shows the overlay)
+		emit_signal("turn_resolved")
 		return
 
-	# ── valid turn ───────────────────────────────────────────────────────────
+	# ── Valid turn ───────────────────────────────────────────────────────────
 	_turn += 1
-	Dialogic.VAR.set("turn_number", _turn)
-	Dialogic.VAR.set("turn_valid",  true)
-	Dialogic.VAR.set("qa_reason",   "")
+	Dialogic.VAR.set("turn_valid",   true)
+	Dialogic.VAR.set("turn_number",  _turn)
+	Dialogic.VAR.set("qa_reason",    "")
 
-	# Point calculation
 	PointCalculator.calculate_points(summary, _alien_idx)
 
 	if _turn >= MAX_TURNS:
-		# Conversation over
 		Global.Aliens[_alien_idx]["visited"] = true
 		Global.button_flags[_alien_idx]      = true
 		Dialogic.VAR.set("game_over", true)
-		# The timeline should branch to its end label when game_over == true
+		emit_signal("turn_resolved")
 		return
 
-	# ── alien replies ────────────────────────────────────────────────────────
-	var alien_reply: String = await APIClient.run_alien(
-		Global.alien_session_id,
-		alien_line,
-		summary
+	# ── Alien responds ───────────────────────────────────────────────────────
+	var reply: String = await APIClient.run_alien(
+		Global.alien_session_id, alien_line, summary
 	)
-	if alien_reply == "":
-		alien_reply = "Hmm... interesting."
+	if reply == "":
+		reply = "Hmm… interesting."
 
-	Global.Aliens[_alien_idx]["alien_response"] = alien_reply
-	Dialogic.VAR.set("alien_response", alien_reply)
+	Global.Aliens[_alien_idx]["alien_response"] = reply
+	Dialogic.VAR.set("alien_response", reply)
 
-	# Resume the timeline — it was paused at `do await DialogueController.submit_player_input()`
-	# The timeline loop will now show alien_response and start_input_timer again.
-	_start_input_timer()
-
-
-# ── called from timeline: `do DialogueController.begin_player_input()` ────────
-
-## Tells DialogueController to start the 30-second countdown.
-## The timeline must NOT advance past this call automatically — it should
-## pause using Dialogic's TextInput node which waits for the player.
-func begin_player_input() -> void:
-	Dialogic.VAR.set("timed_out", false)
-	_start_input_timer()
+	emit_signal("turn_resolved")

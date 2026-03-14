@@ -1,50 +1,19 @@
-# alien_encounter.dtl
-# Single timeline reused for every alien.
-# All dynamic content comes from Dialogic global variables set by DialogueController / Global.
-#
-# Dialogic variables used:
-#   alien_name      – display name shown in the textbox
-#   alien_image     – path to the alien's portrait image
-#   alien_response  – current alien dialogue line
-#   player_input    – written by the TextInput layer; read by DialogueController
-#   turn_valid      – bool set by DialogueController after QA check
-#   qa_reason       – failure reason if turn_valid == false
-#   turn_number     – current turn index (0-based after validation)
-#   game_over       – bool: true when 5 turns are done
-#   timed_out       – bool: true when the 30-second timer fires
-
 [background arg="res://Assets/Backgrounds/nightsky.png" fade="0.5"]
 
-# ── Alien enters and speaks their opening line ─────────────────────────────────
-join {Dialogic.VAR.alien_name} center
-{Dialogic.VAR.alien_name}: {Dialogic.VAR.alien_response}
+{alien_name}: {alien_response}
 
-# ── Turn loop (label for jumping back after invalid input or new turns) ────────
 label turn_start
-
-# Begin 30-second countdown
-do DialogueController.begin_player_input()
-
-# TextInput pauses here and writes to Dialogic.VAR.player_input when submitted
-text_input variable="player_input" placeholder="Type your response…" confirm="Submit" timeout="30"
-
-# Hand off to the controller (QA → points → alien reply)
-do await DialogueController.submit_player_input()
-
-# If the response was invalid, show the rejection reason and loop back
-if {Dialogic.VAR.turn_valid} == false:
-    {Dialogic.VAR.alien_name}: {Dialogic.VAR.qa_reason}
-    jump turn_start
-
-# If 5 turns are done, jump to the goodbye
-if {Dialogic.VAR.game_over} == true:
-    jump farewell
-
-# Otherwise show the alien's new reply and loop
-{Dialogic.VAR.alien_name}: {Dialogic.VAR.alien_response}
+do DialogueController.show_input()
+signal DialogueController turn_resolved
+if {turn_valid} == false:
+	{alien_name}: {qa_reason}
+	jump turn_start
+end_if
+if {game_over} == true:
+	jump farewell
+end_if
+{alien_name}: {alien_response}
 jump turn_start
 
-# ── Farewell ───────────────────────────────────────────────────────────────────
 label farewell
-{Dialogic.VAR.alien_name}: Well, it's been a pleasure. I'll think about your invitation.
-leave {Dialogic.VAR.alien_name} center
+{alien_name}: It's been a pleasure. I'll think about your invitation!
