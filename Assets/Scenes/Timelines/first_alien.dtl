@@ -1,11 +1,7 @@
 [background arg="res://Assets/Backgrounds/background.png" fade="0.5"]
-join alien_1 center
+join alien_2 center
 
-alien_1: Hello!
-alien_1: filler
-if {turn_valid} == false:
-    alien_1: What are you talking about?
-    alien_1: Please leave.
-else:
-    alien_1: {dynamic_line}
-    alien_1: Maybe I'll stop by.
+alien_2: Hello!
+alien_2: intro
+[text_input var="input"]
+alien_2: Wow, maybe I'll come

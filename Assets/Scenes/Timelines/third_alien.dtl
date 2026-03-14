@@ -1,0 +1,7 @@
+[background arg="res://Assets/Backgrounds/background.png" fade="0.5"]
+join alien_3 center
+
+alien_3: Hello!
+alien_3: Are you buying, or just blocking the light? i like bioluminescent fungi, photon collection, and vacuum-sealed snacks.
+[text_input var="input"]
+alien_3: Wow, maybe I'll come
