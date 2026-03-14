@@ -11,24 +11,23 @@ if _DIR not in sys.path:
 class AlienGenerator:
 
     def __init__(self):
-        pass  # removed auto-print; server calls methods directly
+        self.name      = self.get_random_name()
+        self.mood      = self.get_random_mood()
+        self.mbti      = self.get_random_mbti()
+        self.situation = self.get_random_market_booth()
+        self.greeting  = self.get_random_greeting()
+        self.likes     = self.get_random_likes()
+        self.dislikes  = self.get_random_dislikes(self.likes)
+
 
     def get_prompt(self):
-        name      = self.get_random_name()
-        mood      = self.get_random_mood()
-        mbti      = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting  = self.get_random_greeting()
-        likes     = self.get_random_likes()
-        dislikes  = self.get_random_dislikes(likes)
-
         return (
-            f"You name is {name}. You are an alien. Your mood is {mood} and "
-            f"you're an {mbti}. You work as a {situation[0]}, and you are situated in a "
-            f"booth at a market where you are selling {situation[1]}. You enjoy {likes[0]}, "
-            f"{likes[1]}, and {likes[2]}. You hate {dislikes[0]}, {dislikes[1]}, and "
-            f"{dislikes[2]}. You have a maximum dialog of 5 responses before you want to end "
-            f"the conversation. Your greeting is \"{greeting}\". I am looking to invite you "
+            f"You name is {self.name}. You are an alien. Your mood is {self.mood} and "
+            f"you're an {self.mbti}. You work as a {self.situation[0]}, and you are situated in a "
+            f"booth at a market where you are selling {self.situation[1]}. You enjoy {self.likes[0]}, "
+            f"{self.likes[1]}, and {self.likes[2]}. You hate {self.dislikes[0]}, {self.dislikes[1]}, and "
+            f"{self.dislikes[2]}. You have a maximum dialog of 5 responses before you want to end "
+            f"the conversation. Your greeting is \"{self.greeting}\". I am looking to invite you "
             f"to the grand opening for my restaurant, but you don't know that yet. All you "
             f"know is that I approached your booth."
         )
@@ -64,15 +63,21 @@ class AlienGenerator:
     def get_random_market_booth(self):
         return random.choice(self.market_booths)
 
-    def get_random_greeting(self):
-        return random.choice(self.greetings)
-
     def get_random_likes(self):
         return random.sample(self.likes, 3)
 
     def get_random_dislikes(self, likes):
         pool = [x for x in self.likes if x not in likes]
         return random.sample(pool, min(3, len(pool)))
+    
+    def get_random_greeting(self):
+        greeting = random.choice(self.greetings)
+        f"[You are now talking to {self.name}. After doing some research, you "
+        f"have learned that they like {self.likes[0]}, {self.likes[1]}, and "
+        f"{self.likes[2]}. You have also learned that they hate "
+        f"{self.dislikes[0]}, {self.dislikes[1]}, and {self.dislikes[2]}. "
+        f"You may use this information to appeal to their values.]\n\""
+        f"{greeting}\""
 
     alien_names = [
         "Krag-Vark", "Lumina", "X'ylar", "Glip-Glop", "Xenophon", "Sshirra",
