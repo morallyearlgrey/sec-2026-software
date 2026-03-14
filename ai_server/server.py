@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from google.adk.cli.fast_api import get_fast_api_app
 
+from alien_agent.agent import router as alien_router
+
 load_dotenv()
 
 AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +17,8 @@ app: FastAPI = get_fast_api_app(
     allow_origins=["*"],
     web=True,
 )
+
+app.include_router(alien_router)
 
 @app.get("/ping")
 async def root():

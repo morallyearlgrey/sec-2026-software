@@ -4,7 +4,7 @@ class Alien:
     
     def __init__(self):
         # self.__index = 
-        self.__id = ""
+        self.__session = ""
         self.__name = self.get_random_name()
         self.__mood = self.get_random_mood()
         self.__mbti = self.get_random_mbti()
@@ -23,7 +23,7 @@ class Alien:
     def get_prompt(self):        
         return f"You name is {self.__name}. You are an alien. Your mood is {self.__mood} and \
 you're an {self.__mbti}. You work as a {self.__situation[0]}, and you are situated in a \
-booth at a market where you are selling {self.__situation[1]}. You enjoy {self.__likes[0]}, \
+booth at a market where you are selling {self.__situation[1]}. You enjoy {self.__liked_words[0]}, \
 {self.__liked_words[0]}, and {self.__liked_words[1]}. You hate {self.__banned_words[0]}, {self.__banned_words[1]}, and \
 {self.__banned_words[2]}. You have a maximum dialog of 5 responses before you want to end \
 the conversation. Your greeting is \"{self.__dialog_intro}\". I am looking to invite you \
@@ -54,8 +54,8 @@ know is that I approached your booth."
             self.__banned_words
         }
 
-    def set_id(self, id):
-        self.__id = id
+    def set_session(self, session):
+        self.session = session
 
     def add_summary(self, summary: str):
         self.__summaries.append(summary)
@@ -260,5 +260,3 @@ know is that I approached your booth."
         "beach culture",
         "the zorxian world championships"
     ]
-    
-alien_generator = AlienGenerator()
