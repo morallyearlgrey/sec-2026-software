@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import uvicorn
 from dotenv import load_dotenv
@@ -8,13 +9,15 @@ from google.adk.cli.fast_api import get_fast_api_app
 
 load_dotenv()
 
-AGENT_DIR   = os.path.dirname(os.path.abspath(__file__))
-SESSION_DB_URL = f"sqlite:///{os.path.join(AGENT_DIR, 'sessions.db')}"
-PLAYER_ID   = "mcdiggity"   # was missing — caused NameError in /run-alien
+AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PLAYER_ID = "mcdiggity"
+
+# Ensure ai_server/ is always importable (alien_generator.py lives here)
+if AGENT_DIR not in sys.path:
+    sys.path.insert(0, AGENT_DIR)
 
 app: FastAPI = get_fast_api_app(
     agents_dir=AGENT_DIR,
-    session_service_uri=SESSION_DB_URL,
     allow_origins=["*"],
     web=True,
 )
@@ -60,14 +63,14 @@ async def list_agents():
 async def generate_alien():
     try:
         from alien_generator import AlienGenerator
-        gen      = AlienGenerator()
-        name     = gen.get_random_name()
-        mood     = gen.get_random_mood()
-        mbti     = gen.get_random_mbti()
-        situation= gen.get_random_market_booth()
-        greeting = gen.get_random_greeting()
-        likes    = gen.get_random_likes()
-        dislikes = gen.get_random_dislikes(likes)
+        gen       = AlienGenerator()
+        name      = gen.get_random_name()
+        mood      = gen.get_random_mood()
+        mbti      = gen.get_random_mbti()
+        situation = gen.get_random_market_booth()
+        greeting  = gen.get_random_greeting()
+        likes     = gen.get_random_likes()
+        dislikes  = gen.get_random_dislikes(likes)
 
         liked_words  = {w.split()[-1]: 5  for w in likes}
         banned_words = {w.split()[-1]: -3 for w in dislikes}
@@ -84,28 +87,24 @@ async def generate_alien():
 
 @app.post("/run-qa")
 async def run_qa(req: QARequest):
-    import importlib, sys
+    import importlib
     from google.adk.runners import Runner
-    from google.adk.sessions import DatabaseSessionService
+    from google.adk.sessions import InMemorySessionService
     from google.genai import types as genai_types
 
     try:
-        if AGENT_DIR not in sys.path:          # ← add this first
-            sys.path.insert(0, AGENT_DIR)
         qa_path = os.path.join(AGENT_DIR, "qa_agent")
         if qa_path not in sys.path:
             sys.path.insert(0, qa_path)
 
-        # Force reload so we always get the right agent module
         if "agent" in sys.modules:
             del sys.modules["agent"]
         qa_mod = importlib.import_module("agent")
         agent  = qa_mod.root_agent
 
-        svc    = DatabaseSessionService(SESSION_DB_URL)
+        svc    = InMemorySessionService()
         runner = Runner(agent=agent, app_name="qa_agent", session_service=svc)
 
-        # Ensure session exists
         try:
             svc.get_session(app_name="qa_agent", user_id=PLAYER_ID,
                             session_id=req.session_id)
@@ -134,23 +133,22 @@ async def run_qa(req: QARequest):
 
 @app.post("/run-alien")
 async def run_alien(req: AlienRequest):
-    import importlib, sys
+    import importlib
     from google.adk.runners import Runner
-    from google.adk.sessions import DatabaseSessionService
+    from google.adk.sessions import InMemorySessionService
     from google.genai import types as genai_types
 
     try:
-        if AGENT_DIR not in sys.path:          # ← add this first
-            sys.path.insert(0, AGENT_DIR)
         alien_path = os.path.join(AGENT_DIR, "alien_agent")
         if alien_path not in sys.path:
             sys.path.insert(0, alien_path)
+
         if "agent" in sys.modules:
             del sys.modules["agent"]
         alien_mod = importlib.import_module("agent")
         agent     = alien_mod.root_agent
 
-        svc    = DatabaseSessionService(SESSION_DB_URL)
+        svc    = InMemorySessionService()
         runner = Runner(agent=agent, app_name="alien_agent", session_service=svc)
 
         try:
