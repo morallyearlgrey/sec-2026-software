@@ -1,6 +1,6 @@
 [background arg="res://Assets/Backgrounds/nightsky.png" fade="0.0"]
 join alien_1 center
-alien_1: Hello! Are you selling potions. I love potions.
+alien_1: Hello! Are you selling potions? I love potions.
 do DialogueController.dynamic_dialogue()
 alien_1: {Global.dynamic_line}
 do DialogueController.dynamic_dialogue()

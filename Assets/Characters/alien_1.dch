@@ -2,7 +2,7 @@
 "@path": "res://addons/dialogic/Resources/character.gd",
 "@subpath": NodePath(""),
 &"_translation_id": "",
-&"color": Color(0.91015625, 0, 1, 1),
+&"color": Color(1, 1, 1, 1),
 &"custom_info": {
 "prefix": "",
 "sound_mood_default": "",
@@ -15,11 +15,11 @@
 &"display_name": "Potion Acquirer",
 &"mirror": false,
 &"nicknames": [""],
-&"offset": Vector2(0, 0),
+&"offset": Vector2(0, 100),
 &"portraits": {
 "neutral": {
 "export_overrides": {
-"image": "\"res://Assets/Characters/images/alien_1.png\""
+"image": "\"res://Assets/Characters/images/alien_7.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
@@ -27,5 +27,5 @@
 "scene": ""
 }
 },
-&"scale": 1.0
+&"scale": 1.1
 }

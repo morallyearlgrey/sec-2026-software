@@ -31,21 +31,21 @@ texture = ExtResource("1_w8748")
 expand_mode = 3
 stretch_mode = 5
 
-[node name="StartButton" type="Button" parent="." unique_id=1578956463]
+[node name="Yes_Button" type="Button" parent="." unique_id=1578956463]
 custom_minimum_size = Vector2(300, 80)
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1540.0
-offset_top = 87.0
-offset_right = -80.0
-offset_bottom = -913.0
+offset_left = 467.0
+offset_top = 514.0
+offset_right = -1153.0
+offset_bottom = -486.0
 theme_override_fonts/font = ExtResource("2_qre6h")
 theme_override_font_sizes/font_size = 48
 flat = true
 
-[node name="Label" type="Label" parent="StartButton" unique_id=1225218096]
+[node name="Label" type="Label" parent="Yes_Button" unique_id=1225218096]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -59,8 +59,41 @@ theme_override_constants/shadow_outline_size = 1
 theme_override_fonts/font = ExtResource("2_qre6h")
 theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("StyleBoxFlat_w8748")
-text = "Skip Tutorial..."
+text = "Yes"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
+[node name="No_Button" type="Button" parent="." unique_id=795214131]
+custom_minimum_size = Vector2(300, 80)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1163.0
+offset_top = 517.0
+offset_right = -457.0
+offset_bottom = -483.0
+theme_override_fonts/font = ExtResource("2_qre6h")
+theme_override_font_sizes/font_size = 48
+flat = true
+
+[node name="Label" type="Label" parent="No_Button" unique_id=158542695]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_shadow_color = Color(0.30980393, 0.11372549, 0.39607844, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/shadow_outline_size = 1
+theme_override_fonts/font = ExtResource("2_qre6h")
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_w8748")
+text = "No"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="Yes_Button" to="." method="_on_yes_button_pressed"]
+[connection signal="pressed" from="No_Button" to="." method="_on_no_button_pressed"]

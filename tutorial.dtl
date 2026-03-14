@@ -1,0 +1,7 @@
+[background arg="res://Assets/Backgrounds/tutorial_background.png" fade="0.0"]
+join tutorial_alien center
+tutorial_alien: Hey! I heard you were opening a restaurant!
+tutorial_alien: ...
+tutorial_alien: Do you know how you're gonna promote it?
+tutorial_alien: No?
+tutorial_alien: Ok well why don't you try to promote it to me?
