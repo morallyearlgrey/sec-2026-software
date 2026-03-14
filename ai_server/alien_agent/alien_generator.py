@@ -1,92 +1,83 @@
 import random
+import sys
+import os
+
+# Ensure the directory containing this file is always on sys.path
+_DIR = os.path.dirname(os.path.abspath(__file__))
+if _DIR not in sys.path:
+    sys.path.insert(0, _DIR)
+
 
 class AlienGenerator:
-    
+
     def __init__(self):
-        print(self.get_prompt())
+        self.name      = self.get_random_name()
+        self.mood      = self.get_random_mood()
+        self.mbti      = self.get_random_mbti()
+        self.situation = self.get_random_market_booth()
+        self.greeting  = self.get_random_greeting()
+        self.likes     = self.get_random_likes()
+        self.dislikes  = self.get_random_dislikes(self.likes)
+
 
     def get_prompt(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
-        
-        return f"You name is {name}. You are an alien. Your mood is {mood} and \
-you're an {mbti}. You work as a {situation[0]}, and you are situated in a \
-booth at a market where you are selling {situation[1]}. You enjoy {likes[0]}, \
-{likes[1]}, and {likes[2]}. You hate {dislikes[0]}, {dislikes[1]}, and \
-{dislikes[2]}. You have a maximum dialog of 5 responses before you want to end \
-the conversation. Your greeting is \"{greeting}\". I am looking to invite you \
-to the grand opening for my restaurant, but you don't know that yet. All you \
-know is that I approached your booth."
+        return (
+            f"You name is {self.name}. You are an alien. Your mood is {self.mood} and "
+            f"you're an {self.mbti}. You work as a {self.situation[0]}, and you are situated in a "
+            f"booth at a market where you are selling {self.situation[1]}. You enjoy {self.likes[0]}, "
+            f"{self.likes[1]}, and {self.likes[2]}. You hate {self.dislikes[0]}, {self.dislikes[1]}, and "
+            f"{self.dislikes[2]}. You have a maximum dialog of 5 responses before you want to end "
+            f"the conversation. Your greeting is \"{self.greeting}\". I am looking to invite you "
+            f"to the grand opening for my restaurant, but you don't know that yet. All you "
+            f"know is that I approached your booth."
+        )
 
     def get_dict(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
+        name      = self.get_random_name()
+        mood      = self.get_random_mood()
+        mbti      = self.get_random_mbti()
         situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
-        
+        likes     = self.get_random_likes()
+        dislikes  = self.get_random_dislikes(likes)
+        greeting  = self.get_random_greeting(likes, dislikes)
+
         return {
-            name,
-            mood,
-            mbti,
-            situation,
-            greeting,
-            likes,
-            dislikes
+            "name":      name,
+            "mood":      mood,
+            "mbti":      mbti,
+            "situation": situation,
+            "likes":     likes,
+            "dislikes":  dislikes,
+            "greeting":  greeting,
         }
 
     def get_random_name(self):
-        rand = random.randint(0, len(self.alien_names) - 1)
-        return self.alien_names[rand]
+        return random.choice(self.alien_names)
 
     def get_random_mood(self):
-        rand = random.randint(0, len(self.moods) - 1)
-        return self.moods[rand]
-            
+        return random.choice(self.moods)
+
     def get_random_mbti(self):
-        rand = random.randint(0, len(self.mbti) - 1)
-        return self.mbti[rand]
+        return random.choice(self.mbti)
 
-    def get_random_market_booth(self):    
-        rand = random.randint(0, len(self.market_booths) - 1)
-        return self.market_booths[rand]
+    def get_random_market_booth(self):
+        return random.choice(self.market_booths)
 
-    def get_random_greeting(self):
-        rand = random.randint(0, len(self.greetings) - 1)
-        return self.greetings[rand]
-    
     def get_random_likes(self):
-        likes = []
-        
-        for i in range(3):
-            rand = random.randint(0, len(self.likes) - 1)
+        return random.sample(self.likes, 3)
 
-            while self.likes[rand] in likes:
-                rand = random.randint(0, len(self.likes) - 1)
-
-            likes.append(self.likes[rand])
-            
-        return likes
-    
     def get_random_dislikes(self, likes):
-        dislikes = []
-        
-        for i in range(3):
-            rand = random.randint(0, len(self.likes) - 1)
-            
-            while self.likes[rand] in likes and self.likes[rand] in dislikes:
-                rand = random.randint(0, len(self.likes) - 1)
-                
-            dislikes.append(self.likes[rand])
-        
-        return dislikes
+        pool = [x for x in self.likes if x not in likes]
+        return random.sample(pool, min(3, len(pool)))
+    
+    def get_random_greeting(self):
+        greeting = random.choice(self.greetings)
+        f"[You are now talking to {self.name}. After doing some research, you "
+        f"have learned that they like {self.likes[0]}, {self.likes[1]}, and "
+        f"{self.likes[2]}. You have also learned that they hate "
+        f"{self.dislikes[0]}, {self.dislikes[1]}, and {self.dislikes[2]}. "
+        f"You may use this information to appeal to their values.]\n\""
+        f"{greeting}\""
 
     alien_names = [
         "Krag-Vark", "Lumina", "X'ylar", "Glip-Glop", "Xenophon", "Sshirra",
@@ -145,20 +136,20 @@ know is that I approached your booth."
     ]
 
     mbti = [
-        "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj", 
+        "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj",
         "esfp", "isfp", "entj", "intj", "enfp", "infp", "estj", "istj"
     ]
 
     moods = [
-        "Overexcited", "Hyper", "Frantic", "Anxious", "Restless", 
+        "Overexcited", "Hyper", "Frantic", "Anxious", "Restless",
         "Jittery", "Eager", "Rowdy", "Aggressive", "Panicked",
-        "Chill", "Sleepy", "Lazy", "Melancholic", "Serene", 
+        "Chill", "Sleepy", "Lazy", "Melancholic", "Serene",
         "Dull", "Dreamy", "Lethargic", "Stoned", "Zoned-out",
-        "Impatient", "Grumpy", "Cranky", "Bitter", "Sullen", 
+        "Impatient", "Grumpy", "Cranky", "Bitter", "Sullen",
         "Bossy", "Stubborn", "Sarcastic", "Irritable", "Defiant",
-        "Bubbly", "Cheerful", "Gentle", "Polite", "Curious", 
+        "Bubbly", "Cheerful", "Gentle", "Polite", "Curious",
         "Friendly", "Giddy", "Awestruck", "Playful", "Kind",
-        "Shy", "Timid", "Awkward", "Nervous", "Quiet", 
+        "Shy", "Timid", "Awkward", "Nervous", "Quiet",
         "Fidgety", "Suspicious", "Hesitant", "Stoic", "Gloomy",
         "Serious", "Brainy", "Focused", "Puzzled", "Contemplative",
         "Formal", "Strict", "Arrogant", "Confident", "Mischievous"
@@ -196,7 +187,7 @@ know is that I approached your booth."
         "Is that a smile or a threat? Either way, welcome!",
         "Blessings upon your hive. What can I do for you?"
     ]
-    
+
     likes = [
         "culinary arts",
         "the game zorx",
@@ -239,5 +230,3 @@ know is that I approached your booth."
         "beach culture",
         "the zorxian world championships"
     ]
-    
-alien_generator = AlienGenerator()
