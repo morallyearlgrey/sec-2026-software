@@ -23,8 +23,6 @@ Global="*uid://owhk806xxj6f"
 Map="*uid://bibagfu4vyltt"
 PointCalculator="*uid://dot1ocsuktmq1"
 APIClient="*uid://bv8aueddwamck"
-Aliens="*uid://owhk806xxj6f"
-cur_alien_idx="*uid://owhk806xxj6f"
 
 [dialogic]
 
@@ -39,15 +37,8 @@ directories/dch_directory={
 "character": "res://Assets/Characters/character.dch"
 }
 directories/dtl_directory={
-"Timelines/first_alien": "res://Assets/Scenes/Timelines/first_alien.dtl",
-"Timelines/second_alien": "res://Assets/Scenes/Timelines/second_alien.dtl",
-"eighth_alien": "res://Assets/Scenes/Timelines/eighth_alien.dtl",
-"fifth_alien": "res://Assets/Scenes/Timelines/fifth_alien.dtl",
-"first_alien": "res://Assets/Scripts/first_alien.dtl",
-"fourth_alien": "res://Assets/Scenes/Timelines/fourth_alien.dtl",
-"seventh_alien": "res://Assets/Scenes/Timelines/seventh_alien.dtl",
-"sixth_alien": "res://Assets/Scenes/Timelines/sixth_alien.dtl",
-"third_alien": "res://Assets/Scenes/Timelines/third_alien.dtl"
+"alien_encounter": "res://Assets/Scenes/Timelines/alien_encounter.dtl",
+"first_alien": "res://Assets/Scripts/first_alien.dtl"
 }
 layout/style_directory={
 "Alien1_Textbox": "res://Assets/Styles/Textbox Styles/Alien1_Textbox.tres",
@@ -92,8 +83,15 @@ audio/channel_defaults={
 glossary/default_case_sensitive=true
 variables={
 "alien_image": "",
+"alien_input": "",
 "alien_name": "",
-"alien_response": ""
+"alien_response": "",
+"game_over": "",
+"player_input": "",
+"qa_reason": "",
+"timed_out": "",
+"turn_number": "",
+"turn_valid": ""
 }
 history/simple_history_enabled=false
 history/full_history_enabled=false

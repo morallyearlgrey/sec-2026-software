@@ -1,14 +1,12 @@
 [gd_scene format=3 uid="uid://b0mp0jb0qpudt"]
 
 [ext_resource type="Script" uid="uid://f5ij3k3c3jx2" path="res://Assets/Scripts/TitleScreen.gd" id="1_7huei"]
-[ext_resource type="Texture2D" uid="uid://dqpjpnf1gpi0e" path="res://Assets/Backgrounds/TitleScreen.jpg" id="2_vu4bj"]
 [ext_resource type="FontFile" uid="uid://dwb1b1xuh2nr6" path="res://Assets/Fonts/Montserrat-ExtraBold.ttf" id="2_7huei"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_vu4bj"]
 load_path = "res://.godot/imported/TitleScreen.jpg-9713e12cef3d7a9528af919cdb161bf1.ctex"
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_a33en"]
-load_path = "res://.godot/imported/Logo.png-87956afb1a6b0ed68e25568d576a32f8.ctex"
 
 [node name="TitleScreen" type="Control" unique_id=346713926]
 layout_mode = 3

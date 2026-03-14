@@ -1,9 +1,0 @@
-[background arg="res://Assets/Backgrounds/nightsky.png" fade="0.0"]
-join alien_5 center
-alien_5: hi
-do DialogueController.dynamic_dialogue()
-alien_5: {Global.dynamic_line}
-do DialogueController.dynamic_dialogue()
-alien_5: {Global.dynamic_line}
-do DialogueController.dynamic_dialogue()
-alien_5: {Global.dynamic_line}

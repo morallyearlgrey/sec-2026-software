@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://csfxjrkkofs3o"]
+[gd_scene format=3 uid="uid://0dswa06jtbxf"]
 
 [ext_resource type="Script" uid="uid://bhnxqxp6rnt8p" path="res://Assets/Scripts/ButtonController.gd" id="1_u8q4h"]
 [ext_resource type="Texture2D" uid="uid://dn4wcm00ep6a3" path="res://Assets/Backgrounds/Map.png" id="2_xtdxc"]
@@ -24,6 +24,15 @@ grow_vertical = 2
 texture = ExtResource("2_xtdxc")
 expand_mode = 1
 
+[node name="First_Button" type="Button" parent="." unique_id=585005460]
+layout_mode = 0
+offset_left = 194.0
+offset_top = 41.0
+offset_right = 308.0
+offset_bottom = 137.0
+icon = ExtResource("3_iy4he")
+expand_icon = true
+
 [node name="Second_Button" type="Button" parent="." unique_id=423949889]
 layout_mode = 1
 anchors_preset = -1
@@ -33,15 +42,6 @@ offset_left = 633.0
 offset_top = 805.0
 offset_right = 737.936
 offset_bottom = 884.224
-icon = ExtResource("3_iy4he")
-expand_icon = true
-
-[node name="First_Button" type="Button" parent="." unique_id=585005460]
-layout_mode = 0
-offset_left = 194.0
-offset_top = 41.0
-offset_right = 308.0
-offset_bottom = 137.0
 icon = ExtResource("3_iy4he")
 expand_icon = true
 
@@ -81,29 +81,9 @@ offset_bottom = 829.0
 icon = ExtResource("3_iy4he")
 expand_icon = true
 
-[node name="Seventh_Button" type="Button" parent="." unique_id=618556754]
-layout_mode = 0
-offset_left = 560.0
-offset_top = 423.0
-offset_right = 636.0
-offset_bottom = 501.0
-icon = ExtResource("3_iy4he")
-expand_icon = true
-
-[node name="Eighth_Button" type="Button" parent="." unique_id=1409025664]
-layout_mode = 0
-offset_left = 1423.0
-offset_top = 37.0
-offset_right = 1524.0
-offset_bottom = 145.0
-icon = ExtResource("3_iy4he")
-expand_icon = true
-
-[connection signal="pressed" from="Second_Button" to="." method="_on_second_button_pressed"]
 [connection signal="pressed" from="First_Button" to="." method="_on_first_button_pressed"]
+[connection signal="pressed" from="Second_Button" to="." method="_on_second_button_pressed"]
 [connection signal="pressed" from="Third_Button" to="." method="_on_third_button_pressed"]
 [connection signal="pressed" from="Fourth_Button" to="." method="_on_fourth_button_pressed"]
 [connection signal="pressed" from="Fifth_Button" to="." method="_on_fifth_button_pressed"]
 [connection signal="pressed" from="Sixth_Button" to="." method="_on_sixth_button_pressed"]
-[connection signal="pressed" from="Seventh_Button" to="." method="_on_seventh_button_pressed"]
-[connection signal="pressed" from="Eighth_Button" to="." method="_on_eighth_button_pressed"]

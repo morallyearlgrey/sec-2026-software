@@ -1,38 +1,37 @@
 extends Node
 
-func calculate_points(input: String, alien_id: int):
-	var score = 0;
-	
-	var good_words: Dictionary = Global.get_alien(alien_id)["liked_words"].duplicate();
-	
-	var bad_words: Dictionary = Global.get_alien(alien_id)["banned_words"].duplicate();
-		
-	input = input.to_lower();
-	var re = RegEx.new();
-	re.compile("[^a-zA-Z0-9\\s]");
-	input = re.sub(input, " ");
+# calculate_points takes the QA summary (plain English sentence) and the alien
+# index, matches liked/banned words, and accumulates a score on the alien.
+func calculate_points(input: String, alien_id: int) -> void:
+	var alien: Dictionary = Global.get_alien(alien_id)
+	if alien.is_empty():
+		return
 
-	var new_input = input.split(" ");
-	
+	var score: int = 0
+
+	var good_words: Dictionary = alien.get("liked_words",  {}).duplicate()
+	var bad_words:  Dictionary = alien.get("banned_words", {}).duplicate()
+
+	# Normalise: lowercase, strip punctuation
+	input = input.to_lower()
+	var re = RegEx.new()
+	re.compile("[^a-zA-Z0-9\\s]")
+	input = re.sub(input, " ")
+
+	var words: PackedStringArray = input.split(" ")
+
 	for word in good_words.keys():
-		if new_input.has(word.to_lower()):
-			score += good_words[word];
-			good_words.erase(word);
-		
+		if words.has(word.to_lower()):
+			score += good_words[word]
+
 	for word in bad_words.keys():
-		if new_input.has(word.to_lower()):
-			score += bad_words[word];
-			bad_words.erase(word);
-		
-	if(score<0):
-		score=0;
-		
-	Global.get_alien(alien_id)["points"]=score;
+		if words.has(word.to_lower()):
+			score += bad_words[word]   # these are already negative
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
+	score = max(score, 0)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+	# Accumulate (don't overwrite — add to running total)
+	Global.Aliens[alien_id]["points"] = alien.get("points", 0) + score
+
+func _ready() -> void:
 	pass
