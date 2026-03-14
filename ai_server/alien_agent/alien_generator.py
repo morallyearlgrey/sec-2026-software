@@ -1,94 +1,96 @@
 import random
+from google.adk.runners import Runner
 
-class AlienGenerator:
-    
+class Alien:
+# Init  
     def __init__(self):
-        print(self.get_prompt())
+        self.adk_session = ""
+        self.__name = self.get_random_name()
+        self.__mood = self.get_random_mood()
+        self.__mbti = self.get_random_mbti()
+        self.__situation = self.get_random_market_booth()
+        self.__dialog_intro = self.get_random_greeting()
+        self.__liked_words = self.get_random_likes()    # list of {"word": str, "points": int}
+        self.__banned_words = self.get_random_dislikes(self.__liked_words)  # same structure
+        self.points = 12
+        self.__summaries = []
+        self.__turn = 0
 
     def get_prompt(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
-        
-        return f"You name is {name}. You are an alien. Your mood is {mood} and \
-you're an {mbti}. You work as a {situation[0]}, and you are situated in a \
-booth at a market where you are selling {situation[1]}. You enjoy {likes[0]}, \
-{likes[1]}, and {likes[2]}. You hate {dislikes[0]}, {dislikes[1]}, and \
-{dislikes[2]}. You have a maximum dialog of 5 responses before you want to end \
-the conversation. Your greeting is \"{greeting}\". I am looking to invite you \
-to the grand opening for my restaurant, but you don't know that yet. All you \
-know is that I approached your booth."
+        liked_str = ", ".join(w["word"] for w in self.__liked_words)
+        banned_str = ", ".join(w["word"] for w in self.__banned_words)
+        return (
+            f"Your name is {self.__name}. You are an alien. Your mood is {self.__mood} and "
+            f"you're an {self.__mbti}. You work as a {self.__situation[0]}, and you are situated in a "
+            f"booth at a market where you are selling {self.__situation[1]}. "
+            f"You enjoy {liked_str}. "
+            f"You hate {banned_str}. "
+            f"You have a maximum dialog of 5 responses before you want to end the conversation. "
+            f"Your greeting is \"{self.__dialog_intro}\". I am looking to invite you "
+            f"to the grand opening for my restaurant, but you don't know that yet. All you "
+            f"know is that I approached your booth."
+        )
+
+    def get_points(self):
+        return self.points
+
+    def get_summaries(self):
+        return self.__summaries
+
+    def get_turn(self):
+        return self.__turn
 
     def get_dict(self):
-        name = self.get_random_name()
-        mood = self.get_random_mood()
-        mbti = self.get_random_mbti()
-        situation = self.get_random_market_booth()
-        greeting = self.get_random_greeting()
-        likes = self.get_random_likes()
-        dislikes = self.get_random_dislikes(likes)
-        
         return {
-            name,
-            mood,
-            mbti,
-            situation,
-            greeting,
-            likes,
-            dislikes
+            "name": self.__name,
+            "mood": self.__mood,
+            "mbti": self.__mbti,
+            "situation": self.__situation,
+            "dialog_intro": self.__dialog_intro,
+            "liked_words": self.__liked_words,
+            "banned_words": self.__banned_words
         }
 
+    def set_session(self, session):
+        self.adk_session = session
+
+    def add_summary(self, summary: str):
+        self.__summaries.append(summary)
+
+    def increment_turn(self):
+        self.__turn += 1
+
     def get_random_name(self):
-        rand = random.randint(0, len(self.alien_names) - 1)
-        return self.alien_names[rand]
+        return random.choice(self.alien_names)
 
     def get_random_mood(self):
-        rand = random.randint(0, len(self.moods) - 1)
-        return self.moods[rand]
-            
-    def get_random_mbti(self):
-        rand = random.randint(0, len(self.mbti) - 1)
-        return self.mbti[rand]
+        return random.choice(self.moods)
 
-    def get_random_market_booth(self):    
-        rand = random.randint(0, len(self.market_booths) - 1)
-        return self.market_booths[rand]
+    def get_random_mbti(self):
+        return random.choice(self.mbti)
+
+    def get_random_market_booth(self):
+        return random.choice(self.market_booths)
 
     def get_random_greeting(self):
-        rand = random.randint(0, len(self.greetings) - 1)
-        return self.greetings[rand]
-    
+        return random.choice(self.greetings)
+
     def get_random_likes(self):
-        likes = []
-        
-        for i in range(3):
-            rand = random.randint(0, len(self.likes) - 1)
+        """Returns 20 unique liked words, each with a random point value 1-10."""
+        chosen = random.sample(self.likes, 20)
+        return [{"word": w, "points": random.randint(1, 10)} for w in chosen]
 
-            while self.likes[rand] in likes:
-                rand = random.randint(0, len(self.likes) - 1)
-
-            likes.append(self.likes[rand])
-            
-        return likes
-    
     def get_random_dislikes(self, likes):
-        dislikes = []
-        
-        for i in range(3):
-            rand = random.randint(0, len(self.likes) - 1)
-            
-            while self.likes[rand] in likes and self.likes[rand] in dislikes:
-                rand = random.randint(0, len(self.likes) - 1)
-                
-            dislikes.append(self.likes[rand])
-        
-        return dislikes
+        """Returns 20 unique disliked words (no overlap with likes), each with a random point value 1-10."""
+        liked_words = {entry["word"] for entry in likes}
+        pool = [w for w in self.likes if w not in liked_words]
+        # If pool is too small, fall back to allowing overlap
+        if len(pool) < 20:
+            pool = self.likes
+        chosen = random.sample(pool, min(20, len(pool)))
+        return [{"word": w, "points": random.randint(1, 10)} for w in chosen]
 
-    alien_names = [
+    alien_names: list[str] = [
         "Krag-Vark", "Lumina", "X'ylar", "Glip-Glop", "Xenophon", "Sshirra",
         "Grozznok", "Syllis", "Q-Tox", "Zorp", "Valerax", "Xis",
         "Thrax", "Aeryn", "Z'neer", "Poofer", "Thal'Darim", "Sslith",
@@ -111,7 +113,7 @@ know is that I approached your booth."
         "Drog", "Yna", "Q'Ri", "Gloop-Gloop", "Thorn", "Vex"
     ]
 
-    market_booths = [
+    market_booths: list[list[str]] = [
         ["Farmer", "Bananas"],
         ["Beekeeper", "Wildflower Honey"],
         ["Baker", "Sourdough Bread"],
@@ -145,26 +147,26 @@ know is that I approached your booth."
     ]
 
     mbti = [
-        "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj", 
+        "entp", "intp", "esfj", "isfj", "estp", "istp", "enfj", "infj",
         "esfp", "isfp", "entj", "intj", "enfp", "infp", "estj", "istj"
     ]
 
     moods = [
-        "Overexcited", "Hyper", "Frantic", "Anxious", "Restless", 
+        "Overexcited", "Hyper", "Frantic", "Anxious", "Restless",
         "Jittery", "Eager", "Rowdy", "Aggressive", "Panicked",
-        "Chill", "Sleepy", "Lazy", "Melancholic", "Serene", 
+        "Chill", "Sleepy", "Lazy", "Melancholic", "Serene",
         "Dull", "Dreamy", "Lethargic", "Stoned", "Zoned-out",
-        "Impatient", "Grumpy", "Cranky", "Bitter", "Sullen", 
+        "Impatient", "Grumpy", "Cranky", "Bitter", "Sullen",
         "Bossy", "Stubborn", "Sarcastic", "Irritable", "Defiant",
-        "Bubbly", "Cheerful", "Gentle", "Polite", "Curious", 
+        "Bubbly", "Cheerful", "Gentle", "Polite", "Curious",
         "Friendly", "Giddy", "Awestruck", "Playful", "Kind",
-        "Shy", "Timid", "Awkward", "Nervous", "Quiet", 
+        "Shy", "Timid", "Awkward", "Nervous", "Quiet",
         "Fidgety", "Suspicious", "Hesitant", "Stoic", "Gloomy",
         "Serious", "Brainy", "Focused", "Puzzled", "Contemplative",
         "Formal", "Strict", "Arrogant", "Confident", "Mischievous"
     ]
 
-    greetings = [
+    greetings: list[str] = [
         "Hi, welcome to my booth!",
         "Good day, what's your name?",
         "Step closer, traveler, see what I've found.",
@@ -196,48 +198,18 @@ know is that I approached your booth."
         "Is that a smile or a threat? Either way, welcome!",
         "Blessings upon your hive. What can I do for you?"
     ]
-    
+
     likes = [
-        "culinary arts",
-        "the game zorx",
-        "rhythmic gymnastics",
-        "street food",
-        "architectural ruins",
-        "maritime navigation",
-        "experimental jazz",
-        "speculative fiction",
-        "terrestrial botany",
-        "competitive sports",
-        "abstract painting",
-        "beekeeping",
-        "meteorological phenomena",
-        "haute couture",
-        "amusement parks",
-        "folk mythology",
-        "mechanical watches",
-        "oceanography",
-        "cinematography",
-        "analog photography",
-        "urban exploration",
-        "board game marathons",
-        "heavy metal subcultures",
-        "wildlife conservation",
-        "the concept of nostalgia",
-        "stand-up comedy",
-        "bioluminescence",
-        "symphonic orchestras",
-        "bazaar shopping",
-        "geothermal springs",
-        "amateur astronomy",
-        "holiday traditions",
-        "landscape gardening",
-        "the velvet industry",
-        "fermentation science",
-        "sculpture galleries",
-        "ancient languages",
-        "aviation history",
-        "beach culture",
-        "the zorxian world championships"
+        "cooking", "zorx", "gymnastics", "music", "ruins", "navigation",
+        "jazz", "fiction", "botany", "sports", "painting", "beekeeping",
+        "weather", "fashion", "festivals", "mythology", "clockwork", "oceanography",
+        "cinema", "photography", "exploration", "gambling", "metalwork", "conservation",
+        "nostalgia", "comedy", "bioluminescence", "orchestras", "bargaining", "volcanoes",
+        "astronomy", "traditions", "gardening", "velvet", "fermentation", "sculpture",
+        "languages", "aviation", "beaches", "zorxball", "eating", "glassblowing",
+        "fishing", "cartomancy", "taxidermy", "storms", "insects", "sand",
+        "archery", "alchemy", "crystals", "herbalism", "pyrotechnics", "puppetry",
+        "origami", "wrestling", "stargazing", "folklore", "brewing", "foraging",
+        "weaving", "mapmaking", "fencing", "riddling", "divination", "falconry",
+        "pottery", "tattooing", "juggling", "illusions", "clockmaking", "skincare"
     ]
-    
-alien_generator = AlienGenerator()
